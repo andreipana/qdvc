@@ -43,36 +43,69 @@ return;
 
 async Task PullDvcFile(string dvcFilePath)
 {
-    Console.WriteLine($"Pull     {dvcFilePath}");
-    var md5 = await ReadHashFromDvcFile(dvcFilePath);
-    if (md5 == null)
+    try
     {
-        Console.WriteLine($"Failed to read hash from {dvcFilePath}");
-        return;
-    }
-
-    var targetFilePath = dvcFilePath.Substring(0, dvcFilePath.Length - 4);
-
-    if (dvcCache != null)
-    {
-        var cacheFilePath = dvcCache.GetCacheFilePath(md5);
-
-        if (!dvcCache.ContainsFile(md5))
+        Console.WriteLine($"Pull     {dvcFilePath}");
+        var md5 = await ReadHashFromDvcFile(dvcFilePath);
+        if (md5 == null)
         {
-            await DownloadFileAsync(md5, cacheFilePath);
-            new FileInfo(cacheFilePath).Attributes |= FileAttributes.ReadOnly;
+            Console.WriteLine($"Failed to read hash from {dvcFilePath}");
+            return;
         }
 
+        var targetFilePath = dvcFilePath.Substring(0, dvcFilePath.Length - 4);
+
+        if (dvcCache != null)
         {
-            File.Copy(cacheFilePath, targetFilePath, true);
-            new FileInfo(targetFilePath).Attributes &= ~FileAttributes.ReadOnly;
-        
-            Console.WriteLine($"Pulled   {dvcFilePath} FROM CACHE");
+            var cacheFilePath = dvcCache.GetCacheFilePath(md5);
+            var cacheFilePathTemp = $"{cacheFilePath}.{Guid.NewGuid()}";
+            var isFileInCache = dvcCache.ContainsFile(md5);
+
+            if (!isFileInCache)
+            {
+                isFileInCache = false;
+                await DownloadFileAsync(md5, cacheFilePathTemp);
+
+                Console.WriteLine($"REPO  => {dvcFilePath}");
+
+                if (File.Exists(cacheFilePath))
+                {
+                    // TODO: check if the file is the same
+                    Console.WriteLine($"CLASH    {md5} pulling {dvcFilePath}");
+                    Console.WriteLine($"{new FileInfo(cacheFilePath).Length} {new FileInfo(cacheFilePathTemp).Length}");
+                    File.Delete(cacheFilePathTemp);
+                }
+                else
+                {
+                    try
+                    {
+                        File.Move(cacheFilePathTemp, cacheFilePath);
+                        new FileInfo(cacheFilePath).Attributes |= FileAttributes.ReadOnly;
+                    }
+                    catch
+                    {
+                        Console.WriteLine($"CLASH    MOVE {md5} pulling {cacheFilePath}");
+                    }
+                }
+            }
+
+            {
+                File.Copy(cacheFilePath, targetFilePath, true);
+                new FileInfo(targetFilePath).Attributes &= ~FileAttributes.ReadOnly;
+
+                if (isFileInCache)
+                    Console.WriteLine($"CACHE => {dvcFilePath}");
+            }
+        }
+        else
+        {
+            await DownloadFileAsync(md5, targetFilePath);
+            Console.WriteLine($"REPO ->  {dvcFilePath}");
         }
     }
-    else
+    catch (Exception ex)
     {
-        await DownloadFileAsync(md5, targetFilePath);
+        Console.WriteLine($"Failed to pull {dvcFilePath}: {ex}");
     }
 }
 
@@ -88,8 +121,6 @@ async Task DownloadFileAsync(string md5, string filePath)
 
     using var fs = new FileStream(filePath, FileMode.Create, FileAccess.Write);
     await response.Content.CopyToAsync(fs);
-
-    Console.WriteLine($"CACHE    {filePath} {response.StatusCode}");
 }
 
 async Task<string?> ReadHashFromDvcFile(string dvcFilePath)
