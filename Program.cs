@@ -5,20 +5,22 @@ using System.Text;
 
 Console.WriteLine("Quick DVC");
 
-var user = Environment.GetEnvironmentVariable("ARTIFACTORY_USERNAME");
-var pass = Environment.GetEnvironmentVariable("ARTIFACTORY_TOKEN");
+CommandLineArguments Args = new(args);
+
+
+//return;
 
 var sw = Stopwatch.StartNew();
 
-
 //const string path = @"c:\work\infinity.2nd\Data\Projects\rtc\low_40scans_no_images-Vist_AutoBlackAndWhiteTarget";
 //const string path = @"c:\work\infinity.2nd\Data\Projects\rtc\RTC360_4skany_AutoBlackAndWhiteTarget";
-const string path = @"c:\work\infinity.2nd\Data\Projects\rtc";
+//const string path = @"c:\work\infinity.2nd\Data\Projects\rtc";
 //const string path = @"c:\work\infinity.2nd\Data\Projects\";
 //const string path = @"c:\work\infinity.2nd\Data\";
 
+var path = Args.Paths.Select(p => Path.GetFullPath(p)).First();
 var dvcCache = DvcCache.GetDvcCacheForFolder(path);
-//Console.WriteLine($"DVC cache folder: {dvcCache.DvcCacheFolder}");
+Console.WriteLine($"DVC cache folder: {dvcCache?.DvcCacheFolder}");
 //Console.WriteLine(dvcCache.ContainsFile("f41ba0b6951431cf2107e36a0d8d34fa"));
 //Console.WriteLine(dvcCache.GetCacheFilePath("f41ba0b6951431cf2107e36a0d8d34fa"));
 
@@ -78,7 +80,7 @@ async Task DownloadFileAsync(string md5, string filePath)
 {
     using var client = new HttpClient();
 
-    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.ASCII.GetBytes($"{user}:{pass}")));
+    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.ASCII.GetBytes($"{Args.Username}:{Args.Password}")));
     string url = $"https://artifactory.hexagon.com/artifactory/gsurv-generic-release-local/sprout/testdata/files/md5/{md5.Substring(0, 2)}/{md5.Substring(2)}";
     //Console.WriteLine(url);
     var response = await client.GetAsync(url);
@@ -87,7 +89,7 @@ async Task DownloadFileAsync(string md5, string filePath)
     using var fs = new FileStream(filePath, FileMode.Create, FileAccess.Write);
     await response.Content.CopyToAsync(fs);
 
-    Console.WriteLine($"Download {filePath} {response.StatusCode}");
+    Console.WriteLine($"CACHE    {filePath} {response.StatusCode}");
 }
 
 async Task<string?> ReadHashFromDvcFile(string dvcFilePath)
