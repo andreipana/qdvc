@@ -7,25 +7,32 @@ Console.WriteLine("Quick DVC");
 var user = Environment.GetEnvironmentVariable("ARTIFACTORY_USERNAME");
 var pass = Environment.GetEnvironmentVariable("ARTIFACTORY_TOKEN");
 
-//var sw = Stopwatch.StartNew();
+var sw = Stopwatch.StartNew();
+
 //const string path = @"c:\work\infinity.2nd\Data\Projects\rtc\low_40scans_no_images-Vist_AutoBlackAndWhiteTarget";
+const string path = @"c:\work\infinity.2nd\Data\Projects\rtc\RTC360_4skany_AutoBlackAndWhiteTarget";
 //const string path = @"c:\work\infinity.2nd\Data\Projects\rtc";
 //const string path = @"c:\work\infinity.2nd\Data\Projects\";
 //const string path = @"c:\work\infinity.2nd\Data\";
-//var files = Directory.EnumerateFiles(path, "*.dvc", SearchOption.AllDirectories)
-//    .Take(10)
-//    .ToList();
-////files.ForEach(dvc => Console.WriteLine(dvc));
-//Console.WriteLine(files.Count);
-//Console.WriteLine(sw.Elapsed);
 
-const string dvcFilePath = @"c:\work\infinity.2nd\Data\Projects\rtc\low_40scans_no_images-Vist_AutoBlackAndWhiteTarget\da2ada28-06eb-4844-a14e-2d3ff16e665f\project_version_1647868925000.db.dvc";
-await PullDvcFile(dvcFilePath);
+var files = Directory.EnumerateFiles(path, "*.dvc", SearchOption.AllDirectories);
+var options = new ParallelOptions
+{
+    MaxDegreeOfParallelism = -1
+};
+
+await Parallel.ForEachAsync(files, options, async (dvcFilePath, _) =>
+{
+    await PullDvcFile(dvcFilePath);
+});
+
+Console.WriteLine($"took {sw.Elapsed}");
 
 return;
 
 async Task PullDvcFile(string dvcFilePath)
 {
+    Console.WriteLine($"Pulling {dvcFilePath}");
     var md5 = await ReadHashFromDvcFile(dvcFilePath);
     if (md5 == null)
     {
@@ -43,10 +50,10 @@ async Task PullDvcFile(string dvcFilePath)
     //Console.WriteLine(targetFilePath);
 
     using var fs = new FileStream(targetFilePath, FileMode.Create, FileAccess.Write);
-    
+
     await response.Content.CopyToAsync(fs);
 
-    Console.WriteLine(response.StatusCode);
+    Console.WriteLine($"Pulled  {dvcFilePath} {response.StatusCode}");
 }
 
 async Task<string?> ReadHashFromDvcFile(string dvcFilePath)
