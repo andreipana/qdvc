@@ -12,10 +12,12 @@ CommandLineArguments Args = new(args);
 var sw = Stopwatch.StartNew();
 
 var paths = Args.Paths.Select(Path.GetFullPath);
+
 var dvcCache = DvcCache.GetDvcCacheForFolder(paths.First());
 Console.WriteLine($"DVC cache folder: {dvcCache?.DvcCacheFolder}");
 
-var files = paths.SelectMany(path => Directory.EnumerateFiles(path, "*.dvc", SearchOption.AllDirectories));
+var files = paths.SelectMany(GetFilesFromPath);
+
 var options = new ParallelOptions
 {
     MaxDegreeOfParallelism = -1
@@ -130,4 +132,15 @@ string? ReadHashFromDvcFileContent(string dvcFileContent)
     const string marker = "md5: ";
     var index = dvcFileContent.IndexOf(marker) + marker.Length;
     return dvcFileContent.Substring(index, 32);
+}
+
+IEnumerable<string> GetFilesFromPath(string path)
+{
+    if (path.EndsWith(".dvc", StringComparison.OrdinalIgnoreCase))
+        return new[] { path };
+
+    if (Directory.Exists(path))
+        return Directory.EnumerateFiles(path, "*.dvc", SearchOption.AllDirectories);
+
+    return Enumerable.Empty<string>();
 }
