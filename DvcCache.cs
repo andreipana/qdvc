@@ -32,7 +32,6 @@ namespace qdvc
             CreateDirectoryIfNeeded(DvcCacheFilesFolder);
             for (var i = 0; i < 256; i++)
                 CreateDirectoryIfNeeded(Path.Combine(DvcCacheFilesFolder, i.ToString("X2")));
-            Console.WriteLine($"Ensuring folder structure took {sw.Elapsed}");
         }
 
         internal static DvcCache? GetDvcCacheForFolder(string path)

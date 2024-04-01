@@ -7,26 +7,15 @@ Console.WriteLine("Quick DVC");
 
 CommandLineArguments Args = new(args);
 
-
 //return;
 
 var sw = Stopwatch.StartNew();
 
-//const string path = @"c:\work\infinity.2nd\Data\Projects\rtc\low_40scans_no_images-Vist_AutoBlackAndWhiteTarget";
-//const string path = @"c:\work\infinity.2nd\Data\Projects\rtc\RTC360_4skany_AutoBlackAndWhiteTarget";
-//const string path = @"c:\work\infinity.2nd\Data\Projects\rtc";
-//const string path = @"c:\work\infinity.2nd\Data\Projects\";
-//const string path = @"c:\work\infinity.2nd\Data\";
-
-var path = Args.Paths.Select(p => Path.GetFullPath(p)).First();
-var dvcCache = DvcCache.GetDvcCacheForFolder(path);
+var paths = Args.Paths.Select(Path.GetFullPath);
+var dvcCache = DvcCache.GetDvcCacheForFolder(paths.First());
 Console.WriteLine($"DVC cache folder: {dvcCache?.DvcCacheFolder}");
-//Console.WriteLine(dvcCache.ContainsFile("f41ba0b6951431cf2107e36a0d8d34fa"));
-//Console.WriteLine(dvcCache.GetCacheFilePath("f41ba0b6951431cf2107e36a0d8d34fa"));
 
-//return;
-
-var files = Directory.EnumerateFiles(path, "*.dvc", SearchOption.AllDirectories);
+var files = paths.SelectMany(path => Directory.EnumerateFiles(path, "*.dvc", SearchOption.AllDirectories));
 var options = new ParallelOptions
 {
     MaxDegreeOfParallelism = -1
@@ -37,7 +26,7 @@ await Parallel.ForEachAsync(files, options, async (dvcFilePath, _) =>
     await PullDvcFile(dvcFilePath);
 });
 
-Console.WriteLine($"took {sw.Elapsed}");
+Console.WriteLine($"Finished in {sw.Elapsed}");
 
 return;
 
