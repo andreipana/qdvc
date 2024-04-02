@@ -13,8 +13,20 @@ var sw = Stopwatch.StartNew();
 
 var paths = Args.Paths.Select(Path.GetFullPath);
 
+var dvcFolder = DvcCache.FindDvcRootForFolder(paths.First());
 var dvcCache = DvcCache.GetDvcCacheForFolder(paths.First());
 Console.WriteLine($"DVC cache folder: {dvcCache?.DvcCacheFolder}");
+
+var credentials = Credentials.DetectFrom(Args, dvcFolder);
+
+if (credentials == null)
+{
+    Console.WriteLine("Failed to detect credentials.");
+    //TODO: let it run, but bring data only from cache? might be useful, but needs a big warning that this is the case.
+    Environment.Exit(2);
+}
+else
+    Console.WriteLine($"Credentials loaded from {credentials.Source}");
 
 var files = paths.SelectMany(GetFilesFromPath);
 
@@ -61,9 +73,9 @@ async Task PullDvcFile(string dvcFilePath)
 
                 if (File.Exists(cacheFilePath))
                 {
-                    // TODO: check if the file is the same
-                    Console.WriteLine($"CLASH    {md5} pulling {dvcFilePath}");
-                    Console.WriteLine($"{new FileInfo(cacheFilePath).Length} {new FileInfo(cacheFilePathTemp).Length}");
+                    // TODO: check if the file is the same?
+                    Console.WriteLine($"CLASH    {md5} pulling {dvcFilePath} Sizes: {new FileInfo(cacheFilePath).Length} {new FileInfo(cacheFilePathTemp).Length}");
+
                     File.Delete(cacheFilePathTemp);
                 }
                 else

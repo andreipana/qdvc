@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -43,7 +44,7 @@ namespace qdvc
             return new DvcCache(dvcCacheFolder);
         }
 
-        private static string? FindDvcCacheFolder(string path)
+        internal static string? FindDvcRootForFolder(string path)
         {
             string? directory = null;
             if (File.Exists(path))
@@ -55,12 +56,20 @@ namespace qdvc
             {
                 var dvcFolder = Path.Combine(directory, ".dvc");
                 if (Directory.Exists(dvcFolder))
-                    return Path.Combine(dvcFolder, "cache");
+                    return dvcFolder;
 
                 directory = Path.GetDirectoryName(directory);
             }
 
             return null;
+        }
+
+        private static string? FindDvcCacheFolder(string path)
+        {
+            var dvcFolder = FindDvcRootForFolder(path);
+            if (dvcFolder == null)
+                return null;
+            return Path.Combine(dvcFolder, "cache");
         }
 
         public bool ContainsFile(string md5)

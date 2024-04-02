@@ -4,7 +4,7 @@ Quick DVC, a faster alternative to DVC
 ### Usage
 
 ```
-qdvc -u <username> -p <password> <path> [<path> ...]
+qdvc [-u <username>] [-p <password>] <path> [<path> ...]
 ```
 
 `-u` - artifactory username
@@ -13,7 +13,13 @@ qdvc -u <username> -p <password> <path> [<path> ...]
 
 `<path> [<path> ...]` a collection of directories and .dvc files that will be pulled from DVC to their respective locations.
   Directories are processed recursively and all the .dvc file inside them will be pulled.
-  If the file exists locally, it will be overriden.
+  If the file exists locally, it will be overwritten.
+
+**NOTE**: 
+
+The `-u` and `-p` parameters are optional. If any of them is not provided, QDVC will try to read them from the `.dvc\config.local` file relative to the first path provided.
+
+If such file is not found or doen't contain the credentials, QDVC will try to read them from the `ARTIFACTORY_USERNAME` and `ARTIFACTORY_TOKEN` or `ARTIFACTORY_PASSWORD` environment variables.
 
 ### Remarks
 
@@ -21,7 +27,9 @@ QDVC is using the DVC's cache folder (.dvc\cache) and the same caching structure
 If the files don't exist in the dvc cache, QDVC will download them to the cache folder and use them from there.
   
 For the moment, QDVC does only pull, the equivalent of the `dvc -R -f <paths>` command.
-  
+
+----
+
 ### Building QDVC
 
 Make sure you have [.NET 8.0 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) installed.

@@ -15,8 +15,8 @@ namespace qdvc
 
         public CommandLineArguments(string[] args)
         {
-            string? username = null; // Environment.GetEnvironmentVariable("ARTIFACTORY_USERNAME");
-            string? password = null; // Environment.GetEnvironmentVariable("ARTIFACTORY_TOKEN");
+            string? username = null;
+            string? password = null;
 
             var paths = new List<string>();
 
@@ -42,9 +42,9 @@ namespace qdvc
             Password = password;
             Paths = paths.ToArray();
 
-            if (Username == null || Password == null || Paths.Length == 0)
+            if (Paths.Length == 0)
             {
-                Console.WriteLine("Usage: qdvc -u <username> -p <password> <path> [<path> ...]");
+                Console.WriteLine("Usage: qdvc [-u <username>] [-p <password>] <path> [<path> ...]");
                 Environment.Exit(1);
             }
         }
