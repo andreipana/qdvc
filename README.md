@@ -1,6 +1,15 @@
 # qdvc
 Quick DVC, a faster alternative to DVC
 
+### Quick Start
+
+Copy the `qdvc.exe` from `H:\Transfer\PANAN\qdvc` to your Infinity root folder and run something like:
+
+```
+qdvc Data\Assets
+```
+to pull all the files from the `Data\Assets` folder that are tracked by DVC.
+
 ### Usage
 
 ```
