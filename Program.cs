@@ -1,15 +1,14 @@
 ﻿using qdvc;
 using System.Diagnostics;
 using System.Net.Http.Headers;
+using System.Security;
 using System.Text;
 
 Console.WriteLine("Quick DVC");
 
-CommandLineArguments Args = new(args);
-
-//return;
-
 var sw = Stopwatch.StartNew();
+
+CommandLineArguments Args = new(args);
 
 var paths = Args.Paths.Select(Path.GetFullPath);
 
@@ -108,19 +107,33 @@ async Task PullDvcFile(string dvcFilePath)
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"Failed to pull {dvcFilePath}: {ex}");
+        Console.WriteLine($"Failed to pull {dvcFilePath}: {ex.Message}");
     }
 }
 
 async Task DownloadFileAsync(string md5, string filePath)
 {
-    using var client = new HttpClient();
+    if (credentials == null)
+        throw new SecurityException("No credentials provided");
 
-    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.ASCII.GetBytes($"{Args.Username}:{Args.Password}")));
+    using var client = new HttpClient();
+    client.Timeout = TimeSpan.FromMinutes(10);
+
+    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.ASCII.GetBytes($"{credentials.Username}:{credentials.Password}")));
+
     string url = $"https://artifactory.hexagon.com/artifactory/gsurv-generic-release-local/sprout/testdata/files/md5/{md5.Substring(0, 2)}/{md5.Substring(2)}";
-    //Console.WriteLine(url);
     var response = await client.GetAsync(url);
-    //Console.WriteLine(targetFilePath);
+
+    if (!response.IsSuccessStatusCode)
+    {
+        if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            throw new SecurityException("Unauthorized");
+        }
+
+        Console.WriteLine($"Failed to download {url}: {response.StatusCode}");
+        return;
+    }
 
     using var fs = new FileStream(filePath, FileMode.Create, FileAccess.Write);
     await response.Content.CopyToAsync(fs);
