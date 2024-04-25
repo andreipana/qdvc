@@ -34,6 +34,8 @@ If such file is not found or doen't contain the credentials, QDVC will try to re
 
 QDVC is using the DVC's cache folder (.dvc\cache) and the same caching structure, so if the files where previously cached by a dvc command, QDVC will get them from this cache and not hit the remote repository.
 If the files don't exist in the dvc cache, QDVC will download them to the cache folder and use them from there.
+
+If either the `.dvc\config` or `.dvc\config.local` files contain a `[cache] dir` property, to alter the default cache location, QDVC will use that location instead of the default one.
   
 For the moment, QDVC does only pull, the equivalent of the `dvc -R -f <paths>` command.
 

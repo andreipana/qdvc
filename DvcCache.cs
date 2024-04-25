@@ -44,6 +44,15 @@ namespace qdvc
             return new DvcCache(dvcCacheFolder);
         }
 
+        public static DvcCache? InFolder(string? cacheDir, string path)
+        {
+            var dvcCacheFolder = cacheDir ?? FindDvcCacheFolder(path);
+            if (dvcCacheFolder == null)
+                return null;
+
+            return new DvcCache(dvcCacheFolder);
+        }
+
         internal static string? FindDvcRootForFolder(string path)
         {
             string? directory = null;
