@@ -4,7 +4,7 @@ using System.Net.Http.Headers;
 using System.Security;
 using System.Text;
 
-Console.WriteLine("Quick DVC");
+Console.WriteLine($"Quick DVC v{VersionUtils.GetAssemblyInformationalVersion()}");
 
 var sw = Stopwatch.StartNew();
 
