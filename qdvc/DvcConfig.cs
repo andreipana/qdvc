@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace qdvc
 {
-    internal class DvcConfig
+    public class DvcConfig
     {
-        public List<DvcConfigProperty> Properties { get; } = new();
+        public Dictionary<string, DvcConfigProperty> Properties { get; } = new();
 
         public string? ProjectConfigFile { get; private set; }
 
@@ -24,15 +23,15 @@ namespace qdvc
             if (dvcFolder == null)
                 return config;
 
-            var projectConfigFile = Path.Combine(dvcFolder, "config");
-            if (File.Exists(projectConfigFile))
+            var projectConfigFile = IOContext.FileSystem.Path.Combine(dvcFolder, "config");
+            if (IOContext.FileSystem.File.Exists(projectConfigFile))
             {
                 config.ProjectConfigFile = projectConfigFile;
                 config.LoadPropertiesFromFile(projectConfigFile, DvcConfigPropertySource.Project);
             }
 
-            var localConfigFile = Path.Combine(dvcFolder, "config.local");
-            if (File.Exists(localConfigFile))
+            var localConfigFile = IOContext.FileSystem.Path.Combine(dvcFolder, "config.local");
+            if (IOContext.FileSystem.File.Exists(localConfigFile))
             {
                 config.LocalConfigFile = localConfigFile;
                 config.LoadPropertiesFromFile(localConfigFile, DvcConfigPropertySource.Local);
@@ -43,7 +42,7 @@ namespace qdvc
 
         private void LoadPropertiesFromFile(string file, DvcConfigPropertySource source)
         {
-            var lines = File.ReadAllLines(file);
+            var lines = IOContext.FileSystem.File.ReadAllLines(file);
             string currentCategory = "";
 
             foreach (var line in lines)
@@ -65,34 +64,34 @@ namespace qdvc
                 var propertyName = $"{currentCategory}.{parts[0].Trim()}";
                 var propertyValue = parts[1].Trim();
 
-                Properties.Add(new DvcConfigProperty(propertyName, propertyValue, source));
+                Properties[propertyName] = (new DvcConfigProperty(propertyName, propertyValue, source));
             }
         }
 
         public string? GetCacheDirAbsolutePath()
         {
-            var cacheDirProperty = Properties.FirstOrDefault(p => p.Name == "cache.dir");
+            var cacheDirProperty = Properties.GetValueOrDefault("cache.dir");
             if (cacheDirProperty == null)
                 return null;
 
-            if (Path.IsPathFullyQualified(cacheDirProperty.Value))
+            if (IOContext.FileSystem.Path.IsPathFullyQualified(cacheDirProperty.Value))
                 return cacheDirProperty.Value;
 
-            var dir = Path.GetDirectoryName(ProjectConfigFile);
+            var dir = IOContext.FileSystem.Path.GetDirectoryName(ProjectConfigFile ?? LocalConfigFile);
             if (dir == null)
                 return null;
             
-            var absolutePath = Path.GetFullPath(Path.Combine(dir, cacheDirProperty.Value));
+            var absolutePath = IOContext.FileSystem.Path.GetFullPath(IOContext.FileSystem.Path.Combine(dir, cacheDirProperty.Value));
 
             return absolutePath;
         }
     }
 
-    internal record DvcConfigProperty(string Name, string Value, DvcConfigPropertySource source)
+    public record DvcConfigProperty(string Name, string Value, DvcConfigPropertySource Source)
     {
     }
 
-    internal enum DvcConfigPropertySource
+    public enum DvcConfigPropertySource
     {
         Default,
         Local,
