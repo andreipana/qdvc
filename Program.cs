@@ -14,15 +14,19 @@ Console.WriteLine($"Quick DVC v{VersionUtils.GetAssemblyInformationalVersion()}"
 
 var sw = Stopwatch.StartNew();
 
+IOContext.Initialize();
+
 CommandLineArguments Args = new(args);
 
 var paths = Args.Paths.Select(Path.GetFullPath);
 
-var dvcFolder = DvcCache.FindDvcRootForFolder(paths.First());
-var dvcConfig = DvcConfig.LoadConfigForFolder(dvcFolder);
+var dvcFolder = DvcCache.FindDvcRootForRepositorySubPath(paths.First());
+var dvcConfig = DvcConfig.ReadConfigFromFolder(dvcFolder);
 
 var cacheDir = dvcConfig.GetCacheDirAbsolutePath();
-var dvcCache = DvcCache.InFolder(cacheDir, paths.First());
+var dvcCache = DvcCache.CreateFromFolder(cacheDir) ??
+               DvcCache.CreateFromRepositorySubFolder(paths.First());
+
 Console.WriteLine($"DVC cache folder: {dvcCache?.DvcCacheFolder}");
 
 var credentials = Credentials.DetectFrom(Args, dvcFolder);

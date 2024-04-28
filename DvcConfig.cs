@@ -17,7 +17,7 @@ namespace qdvc
         {
         }
 
-        public static DvcConfig LoadConfigForFolder(string? dvcFolder)
+        public static DvcConfig ReadConfigFromFolder(string? dvcFolder)
         {
             var config = new DvcConfig();
 

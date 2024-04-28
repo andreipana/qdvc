@@ -3,7 +3,7 @@ using System.IO;
 
 namespace qdvc
 {
-    internal class DvcCache
+    public class DvcCache
     {
         public string DvcCacheFolder { get; }
         private string DvcCacheFilesFolder { get; }
@@ -11,7 +11,7 @@ namespace qdvc
         public DvcCache(string dvcCacheFolder)
         {
             DvcCacheFolder = dvcCacheFolder;
-            DvcCacheFilesFolder = Path.Combine(DvcCacheFolder, "files", "md5");
+            DvcCacheFilesFolder = IOContext.FileSystem.Path.Combine(DvcCacheFolder, "files", "md5");
             EnsureFolderStructureExists();
         }
 
@@ -19,50 +19,50 @@ namespace qdvc
         {
             var CreateDirectoryIfNeeded = (string path) =>
             {
-                if (!Directory.Exists(path))
-                    Directory.CreateDirectory(path);
+                if (!IOContext.FileSystem.Directory.Exists(path))
+                    IOContext.FileSystem.Directory.CreateDirectory(path);
             };
 
             var sw = Stopwatch.StartNew();
-            CreateDirectoryIfNeeded(Path.Combine(DvcCacheFolder, "files"));
+            CreateDirectoryIfNeeded(IOContext.FileSystem.Path.Combine(DvcCacheFolder, "files"));
             CreateDirectoryIfNeeded(DvcCacheFilesFolder);
             for (var i = 0; i < 256; i++)
-                CreateDirectoryIfNeeded(Path.Combine(DvcCacheFilesFolder, i.ToString("X2")));
+                CreateDirectoryIfNeeded(IOContext.FileSystem.Path.Combine(DvcCacheFilesFolder, i.ToString("X2")));
         }
 
-        internal static DvcCache? GetDvcCacheForFolder(string path)
+        public static DvcCache? CreateFromFolder(string? cacheDir)
         {
-            var dvcCacheFolder = FindDvcCacheFolder(path);
+            var dvcCacheFolder = cacheDir;
             if (dvcCacheFolder == null)
                 return null;
 
             return new DvcCache(dvcCacheFolder);
         }
 
-        public static DvcCache? InFolder(string? cacheDir, string path)
+        public static DvcCache? CreateFromRepositorySubFolder(string repositorySubPath)
         {
-            var dvcCacheFolder = cacheDir ?? FindDvcCacheFolder(path);
+            var dvcCacheFolder = FindDvcCacheFolder(repositorySubPath);
             if (dvcCacheFolder == null)
                 return null;
 
             return new DvcCache(dvcCacheFolder);
         }
 
-        internal static string? FindDvcRootForFolder(string path)
+        public static string? FindDvcRootForRepositorySubPath(string path)
         {
             string? directory = null;
-            if (File.Exists(path))
-                directory = Path.GetDirectoryName(path);
-            else if (Directory.Exists(path))
+            if (IOContext.FileSystem.File.Exists(path))
+                directory = IOContext.FileSystem.Path.GetDirectoryName(path);
+            else if (IOContext.FileSystem.Directory.Exists(path))
                 directory = path;
 
             while (directory != null)
             {
-                var dvcFolder = Path.Combine(directory, ".dvc");
-                if (Directory.Exists(dvcFolder))
+                var dvcFolder = IOContext.FileSystem.Path.Combine(directory, ".dvc");
+                if (IOContext.FileSystem.Directory.Exists(dvcFolder))
                     return dvcFolder;
 
-                directory = Path.GetDirectoryName(directory);
+                directory = IOContext.FileSystem.Path.GetDirectoryName(directory);
             }
 
             return null;
@@ -70,20 +70,20 @@ namespace qdvc
 
         private static string? FindDvcCacheFolder(string path)
         {
-            var dvcFolder = FindDvcRootForFolder(path);
+            var dvcFolder = FindDvcRootForRepositorySubPath(path);
             if (dvcFolder == null)
                 return null;
-            return Path.Combine(dvcFolder, "cache");
+            return IOContext.FileSystem.Path.Combine(dvcFolder, "cache");
         }
 
         public bool ContainsFile(string md5)
         {
-            return File.Exists(GetCacheFilePath(md5));
+            return IOContext.FileSystem.File.Exists(GetCacheFilePath(md5));
         }
 
         public string GetCacheFilePath(string md5)
         {
-            return Path.Combine(DvcCacheFilesFolder, md5.Substring(0, 2), md5.Substring(2));
+            return IOContext.FileSystem.Path.Combine(DvcCacheFilesFolder, md5.Substring(0, 2), md5.Substring(2));
         }
     }
 }

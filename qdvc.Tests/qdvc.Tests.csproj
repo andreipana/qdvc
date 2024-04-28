@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" Version="7.0.0-alpha.3" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="3.0.4" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.0.4" />
+    <PackageReference Include="coverlet.collector" Version="6.0.0" />
+    <PackageReference Include="TestableIO.System.IO.Abstractions.TestingHelpers" Version="21.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\qdvc\qdvc.csproj" />
+  </ItemGroup>
+
+</Project>
