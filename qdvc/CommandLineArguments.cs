@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace qdvc
 {
-    internal class CommandLineArguments
+    public class CommandLineArguments
     {
         public string? Username { get; }
         public string? Password { get; }
