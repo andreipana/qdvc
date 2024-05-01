@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace qdvc
 {
@@ -9,14 +10,35 @@ namespace qdvc
         public string? Password { get; }
         public string[] Paths { get; }
 
+        public string Command { get; }
+
+        private string[] AllowedCommands =
+        {
+            "pull", "status", "add", "push"
+        };
+
         public CommandLineArguments(string[] args)
         {
             string? username = null;
             string? password = null;
 
+            int nextArgIndex = 0;
+
+            var firstArg = args.FirstOrDefault()?.ToLower();
+            if (AllowedCommands.Contains(firstArg))
+            {
+                Command = firstArg;
+                nextArgIndex = 1;
+            }
+            else
+            {
+                Command = "pull";
+                Console.WriteLine("WARNING: no command provided, pull implied.");
+            }
+
             var paths = new List<string>();
 
-            for (var i = 0; i < args.Length; i++)
+            for (var i = nextArgIndex; i < args.Length; i++)
             {
                 if (args[i] == "-u" && i + 1 < args.Length)
                 {
@@ -40,7 +62,9 @@ namespace qdvc
 
             if (Paths.Length == 0)
             {
-                Console.WriteLine("Usage: qdvc [-u <username>] [-p <password>] <path> [<path> ...]");
+                Console.WriteLine("ERROR: No paths provided.");
+                Console.WriteLine("Usage: qdvc <command> [-u <username>] [-p <password>] <path> [<path> ...]");
+                Console.WriteLine("  <command>  must be one of: status, pull, add, push");
                 Environment.Exit(1);
             }
         }
