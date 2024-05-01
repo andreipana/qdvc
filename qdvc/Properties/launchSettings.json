@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "qdvc": {
+      "commandName": "Project",
+      "commandLineArgs": "add Data\\Workflows\\GTR-6794*\\",
+      "workingDirectory": "c:\\work\\infinity.6th\\"
+    }
+  }
+}

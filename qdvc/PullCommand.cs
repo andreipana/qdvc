@@ -28,7 +28,9 @@ namespace qdvc
                 MaxDegreeOfParallelism = -1
             };
 
-            await Parallel.ForEachAsync(files, options, async (dvcFilePath, _) =>
+            var dvcFiles = files.Where(f => f.EndsWith(".dvc", StringComparison.OrdinalIgnoreCase));
+
+            await Parallel.ForEachAsync(dvcFiles, options, async (dvcFilePath, _) =>
             {
                 await PullDvcFile(dvcFilePath);
             });

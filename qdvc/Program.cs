@@ -28,13 +28,16 @@ if (credentials == null)
 else
     Console.WriteLine($"Credentials loaded from {credentials.Source}");
 
-var files = paths.SelectMany(FilesEnumerator.EnumerateFilesFromPath);
+var files = paths.SelectMany(path => FilesEnumerator.EnumerateDvcFilesFromPath(path));
 
 if (files.Any() == false)
 {
     Console.WriteLine("No files found.");
     Environment.Exit(3);
 }
+
+//foreach (var file in files)
+//    Console.WriteLine($"File: {file}");
 
 var cacheDir = dvcConfig.GetCacheDirAbsolutePath();
 var dvcCache = DvcCache.CreateFromFolder(cacheDir) ??
@@ -46,6 +49,9 @@ switch (Args.Command)
 {
     case "pull":
         await new PullCommand(dvcCache, credentials).ExecuteAsync(files);
+        break;
+    case "add":
+        await new AddCommand(dvcCache).ExecuteAsync(files);
         break;
     default:
         Console.WriteLine($"Invalid command '{Args.Command}'");
