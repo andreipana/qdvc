@@ -50,6 +50,9 @@ switch (Args.Command)
     case "pull":
         await new PullCommand(dvcCache, credentials).ExecuteAsync(files);
         break;
+    case "push":
+        await new PushCommand(dvcCache, credentials).ExecuteAsync(files);
+        break;
     case "add":
         await new AddCommand(dvcCache).ExecuteAsync(files);
         break;

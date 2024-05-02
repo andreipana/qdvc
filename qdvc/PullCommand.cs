@@ -36,13 +36,12 @@ namespace qdvc
             });
         }
 
-
         async Task PullDvcFile(string dvcFilePath)
         {
             try
             {
                 Console.WriteLine($"Pull     {dvcFilePath}");
-                var md5 = await ReadHashFromDvcFile(dvcFilePath);
+                var md5 = await DvcFileUtils.ReadHashFromDvcFile(dvcFilePath);
                 if (md5 == null)
                 {
                     Console.WriteLine($"Failed to read hash from {dvcFilePath}");
@@ -131,26 +130,6 @@ namespace qdvc
 
             using var fs = new FileStream(filePath, FileMode.Create, FileAccess.Write);
             await response.Content.CopyToAsync(fs);
-        }
-
-        async Task<string?> ReadHashFromDvcFile(string dvcFilePath)
-        {
-            try
-            {
-                var dvcFileContent = await File.ReadAllTextAsync(dvcFilePath);
-                return ReadHashFromDvcFileContent(dvcFileContent);
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-        }
-
-        string? ReadHashFromDvcFileContent(string dvcFileContent)
-        {
-            const string marker = "md5: ";
-            var index = dvcFileContent.IndexOf(marker) + marker.Length;
-            return dvcFileContent.Substring(index, 32);
         }
     }
 }

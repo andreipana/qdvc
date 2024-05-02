@@ -83,7 +83,7 @@ namespace qdvc
 
         public string GetCacheFilePath(string md5)
         {
-            return IOContext.FileSystem.Path.Combine(DvcCacheFilesFolder, md5.Substring(0, 2), md5.Substring(2));
+            return IOContext.FileSystem.Path.Combine(DvcCacheFilesFolder, md5[..2], md5[2..]);
         }
     }
 }
