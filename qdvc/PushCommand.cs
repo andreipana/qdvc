@@ -65,7 +65,6 @@ namespace qdvc
                 Console.Write($"Pushing     {dvcFilePath} to artifactory in `{md5[..2]}/{md5[2..]}` ... ");
 
                 var cachedFilePath = DvcCache.GetCacheFilePath(md5);
-                // put file to artifactory (if exists, do nothing - log message if ok/nok)
 
                 await UploadFileAsync(md5, cachedFilePath);
             }
