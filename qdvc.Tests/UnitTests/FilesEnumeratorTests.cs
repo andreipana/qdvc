@@ -1,14 +1,7 @@
 ﻿using FluentAssertions;
-using Microsoft.VisualBasic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.IO.Abstractions.TestingHelpers;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace qdvc.Tests.UnitTests
 {
@@ -33,8 +26,8 @@ namespace qdvc.Tests.UnitTests
                 [@"c:\work\MyRepo\Data\Assets\Strings\edit.txt.dvc"] = new MockFileData(""),
                 [@"c:\work\MyRepo\Data\Assets\Strings\add.txt.dvc"] = new MockFileData(""),
 
-                [@"c:\work\MyRepo\Data\Old\Images64\v2\new.bmp.dvc"] = new MockFileData(""),
-                [@"c:\work\MyRepo\Data\Old\Images64\v2\add.bmp.dvc"] = new MockFileData(""),
+                [@"c:\work\MyRepo\Data\Old\Images32\v2\new.bmp.dvc"] = new MockFileData(""),
+                [@"c:\work\MyRepo\Data\Old\Images32\v2\add.bmp.dvc"] = new MockFileData(""),
             });
 
             IOContext.Initialize(fileSystem);
@@ -43,7 +36,7 @@ namespace qdvc.Tests.UnitTests
         [TestMethod]
         public void EnumerateFilesFromPath_ShouldReturn_AllTheFilesFromTheGivenPath()
         {
-            var files = FilesEnumerator.EnumerateDvcFilesFromPath(@"C:\work\MyRepo\Data\Assets\Strings");
+            var files = FilesEnumerator.EnumerateFilesFromPath(@"C:\work\MyRepo\Data\Assets\Strings");
 
             files.Should().BeEquivalentTo(
             [
@@ -55,7 +48,7 @@ namespace qdvc.Tests.UnitTests
         [TestMethod]
         public void EnumerateFilesFromPath_ShouldSupportWildcards_InFileName()
         {
-            var files = FilesEnumerator.EnumerateDvcFilesFromPath(@"C:\work\MyRepo\Data\Assets\Images64\*.png.dvc");
+            var files = FilesEnumerator.EnumerateFilesFromPath(@"C:\work\MyRepo\Data\Assets\Images64\*.png.dvc");
 
             files.Should().BeEquivalentTo(
             [
@@ -67,7 +60,7 @@ namespace qdvc.Tests.UnitTests
         [TestMethod]
         public void EnumerateFilesFromPath_ShouldSupportWildcards_InFileName2()
         {
-            var files = FilesEnumerator.EnumerateDvcFilesFromPath(@"C:\work\MyRepo\Data\Assets\Images64\*.png");
+            var files = FilesEnumerator.EnumerateFilesFromPath(@"C:\work\MyRepo\Data\Assets\Images64\*.png");
 
             files.Should().BeEquivalentTo(
             [
@@ -79,7 +72,7 @@ namespace qdvc.Tests.UnitTests
         [TestMethod]
         public void EnumerateFilesFromPath_ShouldSupportWildcards_InFileName3()
         {
-            var files = FilesEnumerator.EnumerateDvcFilesFromPath(@"C:\work\MyRepo\Data\Assets\Images64\*png*");
+            var files = FilesEnumerator.EnumerateFilesFromPath(@"C:\work\MyRepo\Data\Assets\Images64\*png*");
 
             files.Should().BeEquivalentTo(
             [
@@ -93,7 +86,7 @@ namespace qdvc.Tests.UnitTests
         [TestMethod]
         public void EnumerateFilesFromPath_ShouldSupportWildcards_InFileName4()
         {
-            var files = FilesEnumerator.EnumerateDvcFilesFromPath(@"C:\work\MyRepo\Data\Assets\Images64\*new*.dvc");
+            var files = FilesEnumerator.EnumerateFilesFromPath(@"C:\work\MyRepo\Data\Assets\Images64\*new*.dvc");
 
             files.Should().BeEquivalentTo(
             [
@@ -106,7 +99,7 @@ namespace qdvc.Tests.UnitTests
         [DataRow(@"C:\work\MyRepo\Data\Assets\Images*\")]
         public void EnumerateFilesFromPath_ShouldSupportWildcards_InFirstParentFolderName(string path)
         {
-            var files = FilesEnumerator.EnumerateDvcFilesFromPath(path);
+            var files = FilesEnumerator.EnumerateFilesFromPath(path);
 
             files.Should().BeEquivalentTo(
             [
@@ -121,29 +114,27 @@ namespace qdvc.Tests.UnitTests
         }
 
         [TestMethod]
-        [Ignore("Wildcards in multiple parts of the path are not implemented yet, as they are not supported by the OS functions.")]
         public void EnumerateFilesFromPath_ShouldSupportWildcards_InParentFolderName()
         {
-            var files = FilesEnumerator.EnumerateDvcFilesFromPath(@"C:\work\MyRepo\Data\*\Images64");
+            var files = FilesEnumerator.EnumerateFilesFromPath(@"C:\work\MyRepo\Data\*\Images32");
 
             files.Should().BeEquivalentTo(
-                           [
-                @"c:\work\MyRepo\Data\Assets\Images64\edit.png.dvc",
-                @"c:\work\MyRepo\Data\Assets\Images64\new.png.dvc",
-                @"c:\work\MyRepo\Data\Assets\Images64\new.bmp.dvc",
-                @"c:\work\MyRepo\Data\Old\Images64\v2\add.bmp.dvc"
+            [
+                @"c:\work\MyRepo\Data\Assets\Images32\edit.png.dvc",
+                @"c:\work\MyRepo\Data\Old\Images32\v2\new.bmp.dvc",
+                @"c:\work\MyRepo\Data\Old\Images32\v2\add.bmp.dvc",
             ]);
         }
 
         [TestMethod]
-        [Ignore("Wildcards in multiple parts of the path are not implemented yet, as they are not supported by the OS functions.")]
         public void EnumerateFilesFromPath_ShouldSupportWildcards_InFolderAndFileName()
         {
-            var files = FilesEnumerator.EnumerateDvcFilesFromPath(@"C:\work\MyRepo\Data\Assets\*Images*\*.png.dvc");
+            var files = FilesEnumerator.EnumerateFilesFromPath(@"C:\work\MyRepo\Data\Assets\*Images*\*.png.dvc");
 
             files.Should().BeEquivalentTo(
-                           [
+            [
                 @"c:\work\MyRepo\Data\Assets\Images32\edit.png.dvc",
+                @"c:\work\MyRepo\Data\Assets\Images64\edit.png.dvc",
                 @"c:\work\MyRepo\Data\Assets\Images64\new.png.dvc",
             ]);
         }

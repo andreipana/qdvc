@@ -28,7 +28,7 @@ if (credentials == null)
 else
     Console.WriteLine($"Credentials loaded from {credentials.Source}");
 
-var files = paths.SelectMany(path => FilesEnumerator.EnumerateDvcFilesFromPath(path));
+var files = paths.SelectMany(FilesEnumerator.EnumerateFilesFromPath);
 
 if (files.Any() == false)
 {
