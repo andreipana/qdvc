@@ -11,11 +11,11 @@ using static qdvc.IOContext;
 
 namespace qdvc
 {
-    internal class PushCommand(DvcCache? dvcCache, Credentials credentials)
+    public class PushCommand(DvcCache? dvcCache, HttpClient httpClient)
     {
-        public Credentials Credentials { get; } = credentials;
-
         public DvcCache? DvcCache { get; } = dvcCache;
+
+        public HttpClient HttpClient { get; } = httpClient;
 
         public async Task ExecuteAsync(IEnumerable<string> files)
         {
@@ -70,24 +70,17 @@ namespace qdvc
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Failed to pull {dvcFilePath}: {ex.Message}");
+                Console.WriteLine($"Failed to push {dvcFilePath}: {ex.Message}");
             }
         }
 
         async Task UploadFileAsync(string md5, string filePath)
         {
-            if (Credentials == null)
-                throw new SecurityException("No credentials provided");
-
-            using var client = new HttpClient();
-            client.Timeout = TimeSpan.FromMinutes(10);
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.ASCII.GetBytes($"{Credentials.Username}:{Credentials.Password}")));
-
             var artifactName = md5[2..];
             var targetPath = $"https://artifactory.hexagon.com/artifactory/gsurv-generic-release-local/sprout/testdata/files/md5/_foo/{artifactName}";
 
             var headRequest = new HttpRequestMessage(HttpMethod.Head, targetPath);
-            var headResponse = await client.SendAsync(headRequest);
+            var headResponse = await HttpClient.SendAsync(headRequest);
 
             if (!headResponse.IsSuccessStatusCode)
             {
@@ -95,16 +88,9 @@ namespace qdvc
                 var fileContent = new ByteArrayContent(fileData);
                 var multipartContent = new MultipartFormDataContent();
                 multipartContent.Add(fileContent, "file", artifactName);
-                var response = await client.PutAsync(targetPath, multipartContent);
+                var response = await HttpClient.PutAsync(targetPath, multipartContent);
 
-                if (!response.IsSuccessStatusCode)
-                {
-                    Console.WriteLine($"ERROR ({response.StatusCode})");
-                }
-                else
-                {
-                    Console.WriteLine("SUCCESS");
-                }
+                Console.WriteLine(!response.IsSuccessStatusCode ? $"ERROR ({response.StatusCode})" : "SUCCESS");
             }
             else
             {

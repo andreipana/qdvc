@@ -12,6 +12,7 @@ namespace qdvc
     public class PullCommand
     {
         public DvcCache? DvcCache { get; }
+
         public HttpClient HttpClient { get; }
 
         public PullCommand(DvcCache? dvcCache, HttpClient httpClient)
