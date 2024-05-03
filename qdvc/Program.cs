@@ -15,12 +15,20 @@ IOContext.Initialize();
 
 CommandLineArguments Args = new(args);
 
+if (Args.Paths.Length == 0)
+{
+    Console.WriteLine("ERROR: No paths provided.");
+    Console.WriteLine("Usage: qdvc <command> [-u <username>] [-p <password>] <path> [<path> ...]");
+    Console.WriteLine("  <command>  must be one of: status, pull, add, push");
+    Environment.Exit(1);
+}
+
 var paths = Args.Paths.Select(Path.GetFullPath);
 
 var dvcFolder = DvcCache.FindDvcRootForRepositorySubPath(paths.First());
 var dvcConfig = DvcConfig.ReadConfigFromFolder(dvcFolder);
 
-var credentials = Credentials.DetectFrom(Args, dvcFolder);
+var credentials = Credentials.DetectFrom(Args, dvcConfig);
 
 if (credentials == null)
 {

@@ -14,56 +14,36 @@ namespace qdvc
 
         public string Source { get; } = source;
 
-        public static Credentials? DetectFrom(CommandLineArguments args, string? dvcFolder)
+        public static Credentials? DetectFrom(CommandLineArguments? args, DvcConfig? dvcConfig)
         {
             return DetectFromCommandLineArguments(args)
-                ?? DetectFromFolder(dvcFolder)
+                ?? DetectFromDvcConfig(dvcConfig)
                 ?? DetectFromEnvironment();
         }
 
-        private static Credentials? DetectFromCommandLineArguments(CommandLineArguments args)
+        private static Credentials? DetectFromCommandLineArguments(CommandLineArguments? args)
         {
-            if (args.Username == null || args.Password == null)
+            if (args?.Username == null || args.Password == null)
                 return null;
 
             return new Credentials(args.Username, args.Password, "command line arguments");
         }
 
-        private static Credentials? DetectFromFolder(string? dvcFolder)
+        private static Credentials? DetectFromDvcConfig(DvcConfig? dvcConfig)
         {
-            if (dvcFolder == null)
+            if (dvcConfig == null)
                 return null;
 
-            try
-            {
-                var configLocal = Path.Combine(dvcFolder, "config.local");
+            var repository = dvcConfig.Properties["core.remote"];
+            if (repository.Value == null)
+                return null;
 
-                if (!File.Exists(configLocal))
-                    return null;
+            var repositoryCategory = $"'remote \"{repository.Value}\"'";
+            var username = dvcConfig.Properties[$"{repositoryCategory}.user"];
+            var password = dvcConfig.Properties[$"{repositoryCategory}.password"];
 
-                var lines = File.ReadAllLines(configLocal);
-                string? username = null;
-                string? password = null;
-
-                foreach (var line in lines)
-                {
-                    var trimmedLine = line.Trim();
-
-                    if (trimmedLine.StartsWith("user = "))
-                        username = trimmedLine.Substring("user = ".Length);
-                    else if (trimmedLine.StartsWith("password = "))
-                        password = trimmedLine.Substring("password = ".Length);
-                }
-
-                if (username == null || password == null)
-                    return null;
-
-                return new Credentials(username, password, ".dvc\\config.local file");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Failed to read credentials from {dvcFolder}: {ex.Message}");
-            }
+            if (username != null && password != null)
+                return new Credentials(username.Value, password.Value, "config");
 
             return null;
         }

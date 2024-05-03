@@ -15,30 +15,7 @@ namespace qdvc.Tests.UnitTests
         [TestInitialize()]
         public void TestInitialize()
         {
-            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
-            {
-                [@"C:\work\MyRepo\.dvc\config"] =
-                    new MockFileData(
-                        """
-                        [core]
-                            remote = MyRepo-artifactory
-                        ['remote "MyRepo-artifactory"']
-                            url = https://artifactory.com/artifactory/MyRepo
-                            auth = basic
-                            method = PUT
-                            jobs = 4
-                        [cache]
-                            dir = C:\global\dvc\cache\MyRepo
-                        """),
-                [@"C:\work\MyRepo\.dvc\config.local"] =
-                    new MockFileData(
-                        """
-                        [user]
-                            name = andrew
-                        [cache]
-                            dir = ..\..\local\MyRepo
-                        """),
-            });
+            var fileSystem = TestData.FileSystem.CreateNewWithDvcConfigFiles();
 
             IOContext.Initialize(fileSystem);
         }
@@ -78,13 +55,13 @@ namespace qdvc.Tests.UnitTests
         {
             var dvcConfig = DvcConfig.ReadConfigFromFolder(@"C:\work\MyRepo\.dvc");
 
-            dvcConfig.Properties.Should().HaveCount(7);
+            dvcConfig.Properties.Should().HaveCount(8);
             dvcConfig.Properties["core.remote"].Name.Should().Be("core.remote");
             dvcConfig.Properties["core.remote"].Value.Should().Be("MyRepo-artifactory");
             dvcConfig.Properties["core.remote"].Source.Should().Be(DvcConfigPropertySource.Project);
-            dvcConfig.Properties["user.name"].Name.Should().Be("user.name");
-            dvcConfig.Properties["user.name"].Value.Should().Be("andrew");
-            dvcConfig.Properties["user.name"].Source.Should().Be(DvcConfigPropertySource.Local);
+            dvcConfig.Properties["'remote \"MyRepo-artifactory\"'.user"].Name.Should().Be("'remote \"MyRepo-artifactory\"'.user");
+            dvcConfig.Properties["'remote \"MyRepo-artifactory\"'.user"].Value.Should().Be("andrew");
+            dvcConfig.Properties["'remote \"MyRepo-artifactory\"'.user"].Source.Should().Be(DvcConfigPropertySource.Local);
         }
 
         [TestMethod]
