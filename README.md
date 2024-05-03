@@ -13,16 +13,21 @@ to pull all the files from the `Data\Assets` folder that are tracked by DVC.
 ### Usage
 
 ```
-qdvc [-u <username>] [-p <password>] <path> [<path> ...]
+qdvc <command> [-u <username>] [-p <password>] <path> [<path> ...]
 ```
+`command` - should be one of: `pull`, `add`, `push`.
+   - `pull` - downloads from the remote repository the files represented by the .dvc files given in the `path` argument.
+     If the file exists locally, it will be overwritten.
+   - `add` - adds the files given in the `path` argument to the repository by creating a .dvc file for each input file in the path arguments and copying the input files to the cache folder (if not already there).
+   - `push` - uploads to the remote repository the files represented by the .dvc files given in the `path` argument.
 
 `-u` - artifactory username
 
 `-p` - artifactory access token
 
-`<path> [<path> ...]` a collection of directories and .dvc files that will be pulled from DVC to their respective locations.
-  Directories are processed recursively and all the .dvc file inside them will be pulled.
-  If the file exists locally, it will be overwritten.
+`<path> [<path> ...]` a collection of directories and files that will be pulled from DVC to their respective locations.
+  Directories are processed recursively and all the files inside will be subject to the given command.
+
 
 **NOTE**: 
 
@@ -37,8 +42,6 @@ If the files don't exist in the dvc cache, QDVC will download them to the cache 
 
 If either the `.dvc\config` or `.dvc\config.local` files contain a `[cache] dir` property, to alter the default cache location, QDVC will use that location instead of the default one.
   
-For the moment, QDVC does only pull, the equivalent of the `dvc -R -f <paths>` command.
-
 ----
 
 ### Building QDVC
