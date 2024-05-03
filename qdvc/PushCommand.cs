@@ -62,8 +62,6 @@ namespace qdvc
                     return;
                 }
 
-                Console.Write($"Pushing     {dvcFilePath} to artifactory in `{md5[..2]}/{md5[2..]}` ... ");
-
                 var cachedFilePath = DvcCache.GetCacheFilePath(md5);
 
                 await UploadFileAsync(md5, cachedFilePath);
@@ -77,10 +75,11 @@ namespace qdvc
         async Task UploadFileAsync(string md5, string filePath)
         {
             var artifactName = md5[2..];
-            var targetPath = $"https://artifactory.hexagon.com/artifactory/gsurv-generic-release-local/sprout/testdata/files/md5/_foo/{artifactName}";
+            var targetPath = $"https://artifactory.hexagon.com/artifactory/gsurv-generic-release-local/sprout/testdata/files/md5/{artifactName}";
 
             var headRequest = new HttpRequestMessage(HttpMethod.Head, targetPath);
             var headResponse = await HttpClient.SendAsync(headRequest);
+            var logLine = $"Pushing     {filePath} to artifactory in `{md5[..2]}/{md5[2..]}` ... ";
 
             if (!headResponse.IsSuccessStatusCode)
             {
@@ -90,11 +89,11 @@ namespace qdvc
                 multipartContent.Add(fileContent, "file", artifactName);
                 var response = await HttpClient.PutAsync(targetPath, multipartContent);
 
-                Console.WriteLine(!response.IsSuccessStatusCode ? $"ERROR ({response.StatusCode})" : "SUCCESS");
+                Console.WriteLine(!response.IsSuccessStatusCode ? $"{logLine} ERROR ({response.StatusCode})" : $"{logLine} SUCCESS");
             }
             else
             {
-                Console.WriteLine("FILE EXISTS");
+                Console.WriteLine(logLine + "FILE EXISTS");
             }
         }
     }
