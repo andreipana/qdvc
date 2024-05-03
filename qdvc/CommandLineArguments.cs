@@ -25,7 +25,7 @@ namespace qdvc
             int nextArgIndex = 0;
 
             var firstArg = args.FirstOrDefault()?.ToLower();
-            if (AllowedCommands.Contains(firstArg))
+            if (firstArg != null && AllowedCommands.Contains(firstArg))
             {
                 Command = firstArg;
                 nextArgIndex = 1;

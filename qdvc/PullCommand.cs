@@ -68,7 +68,7 @@ namespace qdvc
                         if (FileSystem.File.Exists(cacheFilePath))
                         {
                             // TODO: check if the file is the same?
-                            Console.WriteLine($"CLASH    {md5} pulling {dvcFilePath} Sizes: {new FileInfo(cacheFilePath).Length} {new FileInfo(cacheFilePathTemp).Length}");
+                            Console.WriteLine($"CLASH    {md5} pulling {dvcFilePath} Sizes: {FileSystem.FileInfo.New(cacheFilePath).Length} {FileSystem.FileInfo.New(cacheFilePathTemp).Length}");
 
                             FileSystem.File.Delete(cacheFilePathTemp);
                         }
