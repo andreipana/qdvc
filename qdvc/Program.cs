@@ -3,6 +3,9 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
 
 Console.WriteLine($"Quick DVC v{VersionUtils.GetAssemblyInformationalVersion()}");
 
@@ -45,10 +48,15 @@ var dvcCache = DvcCache.CreateFromFolder(cacheDir) ??
 
 Console.WriteLine($"DVC cache folder: {dvcCache?.DvcCacheFolder}");
 
+using var httpClient = new HttpClient();
+httpClient.Timeout = TimeSpan.FromMinutes(10);
+if (credentials != null)
+    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.ASCII.GetBytes($"{credentials.Username}:{credentials.Password}")));
+
 switch (Args.Command)
 {
     case "pull":
-        await new PullCommand(dvcCache, credentials).ExecuteAsync(files);
+        await new PullCommand(dvcCache, httpClient).ExecuteAsync(files);
         break;
     case "add":
         await new AddCommand(dvcCache).ExecuteAsync(files);
