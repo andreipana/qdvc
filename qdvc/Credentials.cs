@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace qdvc
 {
-    internal class Credentials(string username, string Password, string source)
+    public class Credentials(string username, string Password, string source)
     {
         public string Username { get; } = username;
         public string Password { get; } = Password;

@@ -1,6 +1,6 @@
 ﻿using System;
-using System.IO;
 using System.Threading.Tasks;
+using static qdvc.IOContext;
 
 namespace qdvc
 {
@@ -10,7 +10,7 @@ namespace qdvc
         {
             try
             {
-                var dvcFileContent = await File.ReadAllTextAsync(dvcFilePath);
+                var dvcFileContent = await FileSystem.File.ReadAllTextAsync(dvcFilePath);
                 return ReadHashFromDvcFileContent(dvcFileContent);
             }
             catch (Exception)
