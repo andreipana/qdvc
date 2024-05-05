@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http.Headers;
 using System.Net.Http;
 using System.Security;
-using System.Text;
 using System.Threading.Tasks;
 using static qdvc.IOContext;
 
@@ -14,6 +12,7 @@ namespace qdvc
     public class PullCommand
     {
         public DvcCache? DvcCache { get; }
+
         public HttpClient HttpClient { get; }
 
         public PullCommand(DvcCache? dvcCache, HttpClient httpClient)
@@ -43,7 +42,7 @@ namespace qdvc
             try
             {
                 Console.WriteLine($"Pull     {dvcFilePath}");
-                var md5 = await ReadHashFromDvcFile(dvcFilePath);
+                var md5 = await DvcFileUtils.ReadHashFromDvcFile(dvcFilePath);
                 if (md5 == null)
                 {
                     Console.WriteLine($"Failed to read hash from {dvcFilePath}");
@@ -124,26 +123,6 @@ namespace qdvc
 
             using var fs = FileSystem.FileStream.New(filePath, FileMode.Create, FileAccess.Write);
             await response.Content.CopyToAsync(fs);
-        }
-
-        async Task<string?> ReadHashFromDvcFile(string dvcFilePath)
-        {
-            try
-            {
-                var dvcFileContent = await FileSystem.File.ReadAllTextAsync(dvcFilePath);
-                return ReadHashFromDvcFileContent(dvcFileContent);
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-        }
-
-        string? ReadHashFromDvcFileContent(string dvcFileContent)
-        {
-            const string marker = "md5: ";
-            var index = dvcFileContent.IndexOf(marker) + marker.Length;
-            return dvcFileContent.Substring(index, 32);
         }
     }
 }
