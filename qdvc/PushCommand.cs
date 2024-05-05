@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net.Http.Headers;
 using System.Net.Http;
-using System.Security;
-using System.Text;
 using System.Threading.Tasks;
 using static qdvc.IOContext;
 
@@ -62,9 +58,7 @@ namespace qdvc
                     return;
                 }
 
-                var cachedFilePath = DvcCache.GetCacheFilePath(md5);
-
-                await UploadFileAsync(md5, cachedFilePath);
+                await UploadFileAsync(md5);
             }
             catch (Exception ex)
             {
@@ -72,8 +66,9 @@ namespace qdvc
             }
         }
 
-        async Task UploadFileAsync(string md5, string filePath)
+        async Task UploadFileAsync(string md5)
         {
+            var filePath = DvcCache.GetCacheFilePath(md5);
             var artifactName = md5[2..];
             var targetPath = $"https://artifactory.hexagon.com/artifactory/gsurv-generic-release-local/sprout/testdata/files/md5/{md5[..2]}/{artifactName}";
 
