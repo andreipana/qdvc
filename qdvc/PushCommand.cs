@@ -58,7 +58,7 @@ namespace qdvc
                     return;
                 }
 
-                await UploadFileAsync(md5);
+                await UploadFileAsync(md5, dvcFilePath);
             }
             catch (Exception ex)
             {
@@ -66,14 +66,14 @@ namespace qdvc
             }
         }
 
-        private async Task UploadFileAsync(string md5)
+        private async Task UploadFileAsync(string md5, string dvcFilePath)
         {
             var filePath = DvcCache!.GetCacheFilePath(md5);
             var targetUrl = $"https://artifactory.hexagon.com/artifactory/gsurv-generic-release-local/sprout/testdata/files/md5/{md5[..2]}/{md5[2..]}";
 
             var headRequest = new HttpRequestMessage(HttpMethod.Head, targetUrl);
             var headResponse = await HttpClient.SendAsync(headRequest);
-            var logLine = $"Pushing     {filePath} to artifactory... ";
+            var logLine = $"Pushing     {dvcFilePath} to artifactory... ";
 
             if (headResponse.IsSuccessStatusCode)
             {
