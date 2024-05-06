@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using static qdvc.IOContext;
 
 Console.WriteLine($"Quick DVC v{VersionUtils.GetAssemblyInformationalVersion()}");
 
@@ -25,7 +26,16 @@ if (Args.Paths.Length == 0)
 
 var paths = Args.Paths.Select(Path.GetFullPath);
 
-var dvcFolder = DvcCache.FindDvcRootForRepositorySubPath(paths.First());
+var currentDirectory = FileSystem.Directory.GetCurrentDirectory();
+var dvcFolder = DvcCache.FindDvcRootForRepositorySubPath(currentDirectory) ??
+                DvcCache.FindDvcRootForRepositorySubPath(paths.First());
+
+if (dvcFolder == null)
+{
+    Console.WriteLine("ERROR: No DVC repository found.");
+    Environment.Exit(1);
+}
+
 var dvcConfig = DvcConfig.ReadConfigFromFolder(dvcFolder);
 
 var credentials = Credentials.DetectFrom(Args, dvcConfig);
