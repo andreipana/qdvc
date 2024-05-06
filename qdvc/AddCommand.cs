@@ -40,14 +40,22 @@ namespace qdvc
             }
 
             var dvcFilePath = $"{file}.dvc";
-            
-            if (FileSystem.File.Exists(dvcFilePath))
-            {
-                Console.WriteLine($"File {dvcFilePath} already exists.");
-                return;
-            }
 
             var md5 = await Hashing.ComputeMD5HashForFileAsync(file);
+            var operation = "Added";
+
+            if (FileSystem.File.Exists(dvcFilePath))
+            {
+                var md5InDvc = await DvcFileUtils.ReadHashFromDvcFile(dvcFilePath);
+                if (md5InDvc == md5)
+                {
+                    Console.WriteLine($"File {dvcFilePath} already exists and up-to-date");
+                    return;
+                }
+
+                operation = "Re-added";
+            }
+
             var fi = FileSystem.FileInfo.New(file);
 
             FileSystem.File.WriteAllText(dvcFilePath, 
@@ -65,12 +73,11 @@ namespace qdvc
             var copyResult = result switch
             {
                 CopyToCacheResult.Success => "Cached",
-                CopyToCacheResult.AlreadyInCache => "Already in cache",
                 CopyToCacheResult.NoCache => "No cache",
                 _ => "Failed to cache"
             };
 
-            Console.WriteLine($"Added {file} ({copyResult})");
+            Console.WriteLine($"{operation} {file} ({copyResult})");
         }
 
         private Task<CopyToCacheResult> CopyFileToCacheAsync(string file, string md5)
@@ -81,12 +88,10 @@ namespace qdvc
 
             try
             {
-                FileSystem.File.Copy(file, cacheFile);
+                FileSystem.File.Copy(file, cacheFile, true);
             }
             catch
             {
-                if (FileSystem.File.Exists(cacheFile))
-                    return Task.FromResult(CopyToCacheResult.AlreadyInCache);
                 return Task.FromResult(CopyToCacheResult.Failed);
             }
 
@@ -96,7 +101,6 @@ namespace qdvc
         private enum CopyToCacheResult
         {
             Success,
-            AlreadyInCache,
             NoCache,
             Failed
         }
