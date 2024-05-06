@@ -66,29 +66,26 @@ namespace qdvc
             }
         }
 
-        async Task UploadFileAsync(string md5)
+        private async Task UploadFileAsync(string md5)
         {
-            var filePath = DvcCache.GetCacheFilePath(md5);
-            var artifactName = md5[2..];
-            var targetPath = $"https://artifactory.hexagon.com/artifactory/gsurv-generic-release-local/sprout/testdata/files/md5/{md5[..2]}/{artifactName}";
+            var filePath = DvcCache!.GetCacheFilePath(md5);
+            var targetUrl = $"https://artifactory.hexagon.com/artifactory/gsurv-generic-release-local/sprout/testdata/files/md5/{md5[..2]}/{md5[2..]}";
 
-            var headRequest = new HttpRequestMessage(HttpMethod.Head, targetPath);
+            var headRequest = new HttpRequestMessage(HttpMethod.Head, targetUrl);
             var headResponse = await HttpClient.SendAsync(headRequest);
-            var logLine = $"Pushing     {filePath} to artifactory in `{md5[..2]}/{md5[2..]}` ... ";
+            var logLine = $"Pushing     {filePath} to artifactory... ";
 
-            if (!headResponse.IsSuccessStatusCode)
+            if (headResponse.IsSuccessStatusCode)
             {
-                var fileData = await FileSystem.File.ReadAllBytesAsync(filePath);
-                var fileContent = new ByteArrayContent(fileData);
-                var multipartContent = new MultipartFormDataContent();
-                multipartContent.Add(fileContent, "file", artifactName);
-                var response = await HttpClient.PutAsync(targetPath, multipartContent);
-
-                Console.WriteLine(!response.IsSuccessStatusCode ? $"{logLine}ERROR ({response.StatusCode})" : $"{logLine}SUCCESS");
+                Console.WriteLine($"{logLine}FILE EXISTS");
             }
             else
             {
-                Console.WriteLine($"{logLine}FILE EXISTS");
+                using var stream = FileSystem.File.OpenRead(filePath);
+                var fileStream = new StreamContent(stream);
+                var response = await HttpClient.PutAsync(targetUrl, fileStream);
+
+                Console.WriteLine(!response.IsSuccessStatusCode ? $"{logLine}ERROR ({response.StatusCode})" : $"{logLine}SUCCESS");
             }
         }
     }
