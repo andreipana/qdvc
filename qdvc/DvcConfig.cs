@@ -6,7 +6,15 @@ namespace qdvc
 {
     public class DvcConfig
     {
-        public Dictionary<string, DvcConfigProperty> Properties { get; } = new();
+        private Dictionary<string, DvcConfigProperty> Properties { get; } = new();
+
+        public DvcConfigProperty? GetProperty(string name)
+        {
+            Properties.TryGetValue(name, out DvcConfigProperty? property);
+            return property;
+        }
+
+        public int GetPropertyCount() => Properties.Count;
 
         public string? ProjectConfigFile { get; private set; }
 

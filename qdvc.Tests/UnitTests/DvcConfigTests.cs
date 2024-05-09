@@ -46,8 +46,8 @@ namespace qdvc.Tests.UnitTests
             IOContext.Initialize(fileSystem);
 
             var dvcConfig = DvcConfig.ReadConfigFromFolder(@"C:\work\MyRepo\.dvc");
-            dvcConfig.Properties.ContainsKey("invalid.line").Should().BeFalse();
-            dvcConfig.Properties["core.remote"].Value.Should().Be("MyRepo-artifactory");
+            dvcConfig.GetProperty("invalid.line").Should().BeNull();
+            dvcConfig.GetProperty("core.remote")?.Value.Should().Be("MyRepo-artifactory");
         }
 
         [TestMethod]
@@ -55,21 +55,21 @@ namespace qdvc.Tests.UnitTests
         {
             var dvcConfig = DvcConfig.ReadConfigFromFolder(@"C:\work\MyRepo\.dvc");
 
-            dvcConfig.Properties.Should().HaveCount(8);
-            dvcConfig.Properties["core.remote"].Name.Should().Be("core.remote");
-            dvcConfig.Properties["core.remote"].Value.Should().Be("MyRepo-artifactory");
-            dvcConfig.Properties["core.remote"].Source.Should().Be(DvcConfigPropertySource.Project);
-            dvcConfig.Properties["'remote \"MyRepo-artifactory\"'.user"].Name.Should().Be("'remote \"MyRepo-artifactory\"'.user");
-            dvcConfig.Properties["'remote \"MyRepo-artifactory\"'.user"].Value.Should().Be("andrew");
-            dvcConfig.Properties["'remote \"MyRepo-artifactory\"'.user"].Source.Should().Be(DvcConfigPropertySource.Local);
+            dvcConfig.GetPropertyCount().Should().Be(8);
+            dvcConfig.GetProperty("core.remote")?.Name.Should().Be("core.remote");
+            dvcConfig.GetProperty("core.remote")?.Value.Should().Be("MyRepo-artifactory");
+            dvcConfig.GetProperty("core.remote")?.Source.Should().Be(DvcConfigPropertySource.Project);
+            dvcConfig.GetProperty("'remote \"MyRepo-artifactory\"'.user")?.Name.Should().Be("'remote \"MyRepo-artifactory\"'.user");
+            dvcConfig.GetProperty("'remote \"MyRepo-artifactory\"'.user")?.Value.Should().Be("andrew");
+            dvcConfig.GetProperty("'remote \"MyRepo-artifactory\"'.user")?.Source.Should().Be(DvcConfigPropertySource.Local);
         }
 
         [TestMethod]
         public void ReadConfigFromFolder_WhenPropertyExistInConfigLocal_ShouldOverrideTheSamePropertyFromConfig()
         {
             var dvcConfig = DvcConfig.ReadConfigFromFolder(@"C:\work\MyRepo\.dvc");
-            dvcConfig.Properties["cache.dir"].Value.Should().Be(@"..\..\local\MyRepo");
-            dvcConfig.Properties["cache.dir"].Source.Should().Be(DvcConfigPropertySource.Local);
+            dvcConfig.GetProperty("cache.dir")?.Value.Should().Be(@"..\..\local\MyRepo");
+            dvcConfig.GetProperty("cache.dir")?.Source.Should().Be(DvcConfigPropertySource.Local);
         }
 
         [TestMethod]
@@ -82,7 +82,7 @@ namespace qdvc.Tests.UnitTests
             var dvcConfig = DvcConfig.ReadConfigFromFolder(dvcFolder);
             
             dvcConfig.Should().NotBeNull();
-            dvcConfig.Properties.Should().BeEmpty();
+            dvcConfig.GetPropertyCount().Should().Be(0);
         }
 
         [TestMethod]
@@ -144,6 +144,13 @@ namespace qdvc.Tests.UnitTests
 
             var dvcConfig = DvcConfig.ReadConfigFromFolder(@"C:\work\MyRepo\.dvc");
             dvcConfig.GetCacheDirAbsolutePath().Should().Be(@"C:\global\cache");
+        }
+
+        [TestMethod]
+        public void Properties_ReturnsNull_ForMissingProperty()
+        {
+            var dvcConfig = DvcConfig.ReadConfigFromFolder(@"C:\work\MyRepo\.dvc");
+            dvcConfig.GetProperty("missingProperty").Should().BeNull();
         }
     }
 }

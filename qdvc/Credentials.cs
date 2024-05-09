@@ -34,13 +34,13 @@ namespace qdvc
             if (dvcConfig == null)
                 return null;
 
-            var repository = dvcConfig.Properties["core.remote"];
-            if (repository.Value == null)
+            var repository = dvcConfig.GetProperty("core.remote");
+            if (repository?.Value == null)
                 return null;
 
             var repositoryCategory = $"'remote \"{repository.Value}\"'";
-            var username = dvcConfig.Properties[$"{repositoryCategory}.user"];
-            var password = dvcConfig.Properties[$"{repositoryCategory}.password"];
+            var username = dvcConfig.GetProperty($"{repositoryCategory}.user");
+            var password = dvcConfig.GetProperty($"{repositoryCategory}.password");
 
             if (username != null && password != null)
                 return new Credentials(username.Value, password.Value, "config");

@@ -25,9 +25,10 @@ namespace qdvc.Tests.UnitTests
             var commandLineArgs = new CommandLineArguments("-u andrei -p asdfgh".Split(' '));
             var credentials = Credentials.DetectFrom(commandLineArgs, null);
 
-            credentials.Username.Should().Be("andrei");
-            credentials.Password.Should().Be("asdfgh");
-            credentials.Source.Should().Be("command line arguments");
+            credentials.Should().NotBeNull();
+            credentials?.Username.Should().Be("andrei");
+            credentials?.Password.Should().Be("asdfgh");
+            credentials?.Source.Should().Be("command line arguments");
         }
 
         [TestMethod]
@@ -36,9 +37,10 @@ namespace qdvc.Tests.UnitTests
             var dvcConfig = DvcConfig.ReadConfigFromFolder(@"C:\work\MyRepo\.dvc");
             var credentials = Credentials.DetectFrom(null, dvcConfig);
 
-            credentials.Username.Should().Be("andrew");
-            credentials.Password.Should().Be("asdfgh");
-            credentials.Source.Should().Be("config");
+            credentials.Should().NotBeNull();
+            credentials?.Username.Should().Be("andrew");
+            credentials?.Password.Should().Be("asdfgh");
+            credentials?.Source.Should().Be("config");
         }
     }
 }
