@@ -1,11 +1,7 @@
 ﻿using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
+using qdvc.Infrastructure;
+using qdvc.Utilities;
 
 namespace qdvc.Tests.UnitTests
 {
@@ -26,9 +22,9 @@ namespace qdvc.Tests.UnitTests
             var credentials = Credentials.DetectFrom(commandLineArgs, null);
 
             credentials.Should().NotBeNull();
-            credentials?.Username.Should().Be("andrei");
-            credentials?.Password.Should().Be("asdfgh");
-            credentials?.Source.Should().Be("command line arguments");
+            credentials!.Username.Should().Be("andrei");
+            credentials.Password.Should().Be("asdfgh");
+            credentials.Source.Should().Be("command line arguments");
         }
 
         [TestMethod]
@@ -38,9 +34,9 @@ namespace qdvc.Tests.UnitTests
             var credentials = Credentials.DetectFrom(null, dvcConfig);
 
             credentials.Should().NotBeNull();
-            credentials?.Username.Should().Be("andrew");
-            credentials?.Password.Should().Be("asdfgh");
-            credentials?.Source.Should().Be("config");
+            credentials!.Username.Should().Be("andrew");
+            credentials.Password.Should().Be("asdfgh");
+            credentials.Source.Should().Be("config");
         }
     }
 }

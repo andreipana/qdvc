@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using static qdvc.IOContext;
+using static qdvc.Infrastructure.IOContext;
 
-namespace qdvc
+namespace qdvc.Commands
 {
     public class PushCommand(DvcCache? dvcCache, HttpClient httpClient)
     {

@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using qdvc.Infrastructure;
 using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;
 

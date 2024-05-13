@@ -1,12 +1,8 @@
 ﻿using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using qdvc.Utilities;
 
-namespace qdvc.Tests.UnitTests
+namespace qdvc.Tests.UnitTests.Utilities
 {
     [TestClass]
     public class CommandLineArgsTests
@@ -21,7 +17,7 @@ namespace qdvc.Tests.UnitTests
         }
 
         [TestMethod]
-        [DataRow(@"Data\assets", new[] { @"Data\assets"})]
+        [DataRow(@"Data\assets", new[] { @"Data\assets" })]
         [DataRow(@"Data\assets Data\sources", new[] { @"Data\assets", @"Data\sources" })]
         [DataRow(@"Data\assets Data\file.dvc", new[] { @"Data\assets", @"Data\file.dvc" })]
         [DataRow(@"-u andrei -p asdfgh Data\assets Data\sources", new[] { @"Data\assets", @"Data\sources" })]

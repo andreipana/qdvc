@@ -1,20 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using qdvc.Infrastructure;
 
 namespace qdvc
 {
     public class DvcConfig
     {
-        private Dictionary<string, DvcConfigProperty> Properties { get; } = new();
-
-        public DvcConfigProperty? GetProperty(string name)
-        {
-            Properties.TryGetValue(name, out DvcConfigProperty? property);
-            return property;
-        }
-
-        public int GetPropertyCount() => Properties.Count;
+        public Dictionary<string, DvcConfigProperty> Properties { get; } = new();
 
         public string? ProjectConfigFile { get; private set; }
 

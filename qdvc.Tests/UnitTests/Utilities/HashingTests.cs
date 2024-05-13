@@ -1,13 +1,11 @@
 ﻿using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+using qdvc.Infrastructure;
+using qdvc.Utilities;
 using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace qdvc.Tests.UnitTests
+namespace qdvc.Tests.UnitTests.Utilities
 {
     [TestClass]
     public class HashingTests

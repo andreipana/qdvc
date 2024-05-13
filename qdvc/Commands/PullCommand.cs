@@ -5,10 +5,10 @@ using System.Linq;
 using System.Net.Http;
 using System.Security;
 using System.Threading.Tasks;
-using static qdvc.IOContext;
-using Console = qdvc.SystemContext.Console;
+using static qdvc.Infrastructure.IOContext;
+using Console = qdvc.Infrastructure.SystemContext.Console;
 
-namespace qdvc
+namespace qdvc.Commands
 {
     public class PullCommand
     {

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using static qdvc.IOContext;
+using static qdvc.Infrastructure.IOContext;
 
-namespace qdvc
+namespace qdvc.Utilities
 {
     public class Hashing
     {

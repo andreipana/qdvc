@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO.Abstractions;
 
-namespace qdvc
+namespace qdvc.Infrastructure
 {
     public static class IOContext
     {

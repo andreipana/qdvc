@@ -1,13 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using qdvc.Commands;
+using RichardSzalay.MockHttp;
+using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;
 using System.Net.Http;
 using System.Threading.Tasks;
-using FluentAssertions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using RichardSzalay.MockHttp;
-using static qdvc.IOContext;
+using static qdvc.Infrastructure.IOContext;
 
-namespace qdvc.Tests.UnitTests
+namespace qdvc.Tests.UnitTests.Commands
 {
     [TestClass]
     public class PushCommandTests

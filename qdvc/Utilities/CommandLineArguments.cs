@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace qdvc
+namespace qdvc.Utilities
 {
     public class CommandLineArguments
     {

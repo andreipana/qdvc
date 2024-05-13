@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Reflection;
 
-namespace qdvc
+namespace qdvc.Utilities
 {
     internal static class VersionUtils
     {

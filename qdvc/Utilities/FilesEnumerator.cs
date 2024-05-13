@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using static qdvc.IOContext;
+using static qdvc.Infrastructure.IOContext;
 
-namespace qdvc
+namespace qdvc.Utilities
 {
     public static class FilesEnumerator
     {

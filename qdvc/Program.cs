@@ -1,4 +1,7 @@
 ﻿using qdvc;
+using qdvc.Commands;
+using qdvc.Infrastructure;
+using qdvc.Utilities;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -6,7 +9,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using static qdvc.IOContext;
+using static qdvc.Infrastructure.IOContext;
 
 Console.WriteLine($"Quick DVC v{VersionUtils.GetAssemblyInformationalVersion()}");
 

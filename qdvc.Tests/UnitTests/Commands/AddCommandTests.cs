@@ -1,14 +1,13 @@
 ﻿using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+using qdvc.Commands;
+using qdvc.Infrastructure;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace qdvc.Tests.UnitTests
+namespace qdvc.Tests.UnitTests.Commands
 {
     [TestClass]
     public class AddCommandTests

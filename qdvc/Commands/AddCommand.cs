@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static qdvc.IOContext;
+using qdvc.Utilities;
+using static qdvc.Infrastructure.IOContext;
 
-namespace qdvc
+namespace qdvc.Commands
 {
     public class AddCommand
     {
@@ -58,7 +59,7 @@ namespace qdvc
 
             var fi = FileSystem.FileInfo.New(file);
 
-            FileSystem.File.WriteAllText(dvcFilePath, 
+            FileSystem.File.WriteAllText(dvcFilePath,
                 $"""
                 outs:
                 - md5: {md5}

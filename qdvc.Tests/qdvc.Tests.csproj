@@ -23,4 +23,8 @@
     <ProjectReference Include="..\qdvc\qdvc.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="UnitTests\Infrastructure\" />
+  </ItemGroup>
+
 </Project>

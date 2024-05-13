@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "qdvc": {
+      "commandName": "Project",
+      "commandLineArgs": "pull data\\Dbx\\Traverse\\ROGLA_POLIGON_5634_0610\\ROGLA_POLIGON_5634_0610_115207.XCF.dvc",
+      "workingDirectory": "c:\\work\\infinity.5th\\"
+    }
+  }
+}
