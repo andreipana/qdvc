@@ -11,6 +11,8 @@ using System.Net.Http.Headers;
 using System.Text;
 using static qdvc.Infrastructure.IOContext;
 
+SystemContext.Initialize();
+
 Console.WriteLine($"Quick DVC v{VersionUtils.GetAssemblyInformationalVersion()}");
 
 var sw = Stopwatch.StartNew();

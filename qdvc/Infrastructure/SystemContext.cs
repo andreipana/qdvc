@@ -46,12 +46,12 @@ namespace qdvc.Infrastructure
     {
         public void StdErrWriteLine(string message)
         {
-            Console.Error.Write(message);
+            Console.Error.WriteLine(message);
         }
 
         public void StdOutWriteLine(string message)
         {
-            Console.Write(message);
+            Console.WriteLine(message);
         }
     }
 }

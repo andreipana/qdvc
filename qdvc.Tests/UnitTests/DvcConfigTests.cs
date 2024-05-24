@@ -12,7 +12,7 @@ namespace qdvc.Tests.UnitTests
         [TestInitialize()]
         public void TestInitialize()
         {
-            var fileSystem = TestData.FileSystem.CreateNewWithDvcConfigFiles();
+            var fileSystem = TestData.FileSystem.CreateNewWithDvcConfigAndConfigLocalFiles();
 
             IOContext.Initialize(fileSystem);
         }

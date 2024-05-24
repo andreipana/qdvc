@@ -10,7 +10,7 @@ namespace qdvc.Tests.UnitTests.TestData
 {
     internal static class FileSystem
     {
-        internal static IFileSystem CreateNewWithDvcConfigFiles()
+        internal static IFileSystem CreateNewWithDvcConfigAndConfigLocalFiles()
         {
             return new MockFileSystem(new Dictionary<string, MockFileData>
             {
@@ -36,6 +36,26 @@ namespace qdvc.Tests.UnitTests.TestData
                         [cache]
                             dir = ..\..\local\MyRepo
                         """),
+            });
+        }
+
+        internal static IFileSystem CreateNewWithDvcConfigFile()
+        {
+            return new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                [@"C:\work\MyRepo\.dvc\config"] =
+                    new MockFileData(
+                        """
+                        [core]
+                        remote = MyRepo-artifactory
+                        ['remote "MyRepo-artifactory"']
+                        url = https: //artifactory.com/artifactory/MyRepo
+                        auth = basic
+                        method = PUT
+                        jobs = 4
+                        [cache]
+                        dir = C:\global\dvc\cache\MyRepo
+                        """)
             });
         }
     }
