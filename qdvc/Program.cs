@@ -87,6 +87,9 @@ switch (Args.Command)
     case "add":
         await new AddCommand(dvcCache).ExecuteAsync(files);
         break;
+    case "status":
+        await new StatusCommand(dvcCache, httpClient).ExecuteAsync(files);
+        break;
     default:
         Console.WriteLine($"Invalid command '{Args.Command}'");
         break;
