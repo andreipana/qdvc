@@ -6,33 +6,39 @@ namespace qdvc.Utilities
 {
     public class CommandLineArguments
     {
-        public string? Username { get; }
-        public string? Password { get; }
-        public string[] Paths { get; }
+        public string? Username { get; private set; }
+        public string? Password { get; private set; }
+        public IEnumerable<string> Paths { get; private set; } = [];
 
-        public string Command { get; }
+        public string? Command { get; private set; } = null;
 
-        private string[] AllowedCommands =
+        public CommandLineArguments(string command, IEnumerable<string> paths, string? username, string? password)
         {
-            "pull", "status", "add", "push"
-        };
+            Command = command;
+            Paths = paths;
+            Username = username;
+            Password = password;
+        }
 
-        public CommandLineArguments(string[] args)
+        public static CommandLineArguments Parse(string[] args)
         {
+            string[] AllowedCommands = ["pull", "status", "add", "push"];
+
             string? username = null;
             string? password = null;
+            string? command = null;
 
             int nextArgIndex = 0;
 
             var firstArg = args.FirstOrDefault()?.ToLower();
             if (firstArg != null && AllowedCommands.Contains(firstArg))
             {
-                Command = firstArg;
+                command = firstArg;
                 nextArgIndex = 1;
             }
             else
             {
-                Command = "pull";
+                command = "pull";
                 Console.WriteLine("WARNING: no command provided, pull implied.");
             }
 
@@ -56,9 +62,12 @@ namespace qdvc.Utilities
                 }
             }
 
-            Username = username;
-            Password = password;
-            Paths = paths.ToArray();
+            return new CommandLineArguments(command, paths, username, password);
+        }
+
+        public static CommandLineArguments? ParseUsingSCL(string[] args)
+        {
+            return new SystemCommandLineFacade().Parse(args);            
         }
     }
 }

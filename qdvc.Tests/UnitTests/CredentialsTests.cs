@@ -13,7 +13,7 @@ namespace qdvc.Tests.UnitTests
         {
             IOContext.Initialize(TestData.FileSystem.CreateNewWithDvcConfigAndConfigLocalFiles());
 
-            var commandLineArgs = new CommandLineArguments("-u andrei -p asdfgh".Split(' '));
+            var commandLineArgs = CommandLineArguments.Parse("-u andrei -p asdfgh".Split(' '));
             var credentials = Credentials.DetectFrom(commandLineArgs, null);
 
             credentials.Should().NotBeNull();

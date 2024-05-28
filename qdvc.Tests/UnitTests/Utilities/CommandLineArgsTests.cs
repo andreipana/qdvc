@@ -10,7 +10,7 @@ namespace qdvc.Tests.UnitTests.Utilities
         [TestMethod]
         public void Constructor_DetectsUsernameAndPassword()
         {
-            var args = new CommandLineArguments(new[] { "-u", "andrei", "-p", "asdfgh", "Data" });
+            var args = CommandLineArguments.Parse(new[] { "-u", "andrei", "-p", "asdfgh", "Data" });
 
             args.Username.Should().Be("andrei");
             args.Password.Should().Be("asdfgh");
@@ -23,7 +23,7 @@ namespace qdvc.Tests.UnitTests.Utilities
         [DataRow(@"-u andrei -p asdfgh Data\assets Data\sources", new[] { @"Data\assets", @"Data\sources" })]
         public void Constructor_DetectsPaths(string input, string[] expectedPaths)
         {
-            var args = new CommandLineArguments(input.Split(' '));
+            var args = CommandLineArguments.Parse(input.Split(' '));
 
             args.Paths.Should().BeEquivalentTo(expectedPaths);
         }
@@ -35,7 +35,7 @@ namespace qdvc.Tests.UnitTests.Utilities
         [DataRow(@"-u andrei -p asdfgh Data\assets Data\sources")]
         public void CommandIsPull_WhenNoCommandSpecified(string input)
         {
-            var args = new CommandLineArguments(input.Split(' '));
+            var args = CommandLineArguments.Parse(input.Split(' '));
 
             args.Command.Should().Be("pull");
         }
@@ -47,7 +47,7 @@ namespace qdvc.Tests.UnitTests.Utilities
         [DataRow(@"push -u andrei -p asdfgh Data\assets Data\sources", "push")]
         public void CommandIsDetected_WhenItIsTheFirstArgument(string input, string expectedCommand)
         {
-            var args = new CommandLineArguments(input.Split(' '));
+            var args = CommandLineArguments.Parse(input.Split(' '));
 
             args.Command.Should().Be(expectedCommand);
         }
