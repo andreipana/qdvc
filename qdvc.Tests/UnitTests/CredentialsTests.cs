@@ -13,7 +13,9 @@ namespace qdvc.Tests.UnitTests
         {
             IOContext.Initialize(TestData.FileSystem.CreateNewWithDvcConfigAndConfigLocalFiles());
 
-            var commandLineArgs = new CommandLineArguments("-u andrei -p asdfgh".Split(' '));
+#pragma warning disable CS0618 // Type or member is obsolete
+            var commandLineArgs = CommandLineArguments.Parse("-u andrei -p asdfgh".Split(' '));
+#pragma warning restore CS0618 // Type or member is obsolete
             var credentials = Credentials.DetectFrom(commandLineArgs, null);
 
             credentials.Should().NotBeNull();
