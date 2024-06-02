@@ -1,4 +1,6 @@
-﻿using qdvc.Infrastructure;
+﻿using Microsoft.Extensions.Options;
+using qdvc.Infrastructure;
+using System;
 using System.CommandLine;
 using System.CommandLine.IO;
 
@@ -25,10 +27,13 @@ namespace qdvc.Utilities
 
             var statusCommand = new Command("status", "Shows the status of the tracked files.");
             statusCommand.AddArgument(pathsArgument);
-            statusCommand.SetHandler((paths, username, password) =>
+            var statusRepoOptions = new Option<bool>("--repo");
+            statusCommand.AddOption(statusRepoOptions);
+            statusCommand.SetHandler((paths, username, password, repo) =>
             {
-                Args = new CommandLineArguments("status", paths, username, password);
-            }, pathsArgument, usernameOption, passwordOption);
+                var command = repo ? "status--repo" : "status";
+                Args = new CommandLineArguments(command, paths, username, password);
+            }, pathsArgument, usernameOption, passwordOption, statusRepoOptions);
             rootCommand.AddCommand(statusCommand);
 
             var pullCommand = new Command("pull", "Pulls from cache or remote repository the files specified by the .dvc files in the given paths.");

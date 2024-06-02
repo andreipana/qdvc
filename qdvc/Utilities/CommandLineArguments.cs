@@ -68,7 +68,7 @@ namespace qdvc.Utilities
 
         public static CommandLineArguments ParseUsingSCL(string[] args)
         {
-            return new SystemCommandLineFacade().Parse(args);            
+            return new SystemCommandLineFacade().Parse(args);
         }
     }
 }

@@ -98,6 +98,9 @@ class Program
             case "status":
                 await new StatusCommand(dvcCache).ExecuteAsync(files);
                 break;
+            case "status--repo":
+                await new StatusRepoCommand(dvcCache, httpClient).ExecuteAsync(files);
+                break;
             default:
                 Console.WriteLine($"Invalid command '{Args.Command}'");
                 break;
