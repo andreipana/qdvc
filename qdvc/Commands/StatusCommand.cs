@@ -11,10 +11,9 @@ using Console = qdvc.Infrastructure.SystemContext.Console;
 
 namespace qdvc.Commands
 {
-    public class StatusCommand(DvcCache? dvcCache, HttpClient httpClient)
+    public class StatusCommand(DvcCache? dvcCache)
     {
         public DvcCache? DvcCache { get; } = dvcCache;
-        public HttpClient HttpClient { get; } = httpClient;
 
         public StatusStatistics Statistics { get; } = new StatusStatistics();
 
@@ -135,6 +134,7 @@ namespace qdvc.Commands
         public void IncrementNotInCacheFiles() => Interlocked.Increment(ref _notInCacheFiles);
 
         public void IncrementMissingFiles() => Interlocked.Increment(ref _missingFiles);
+
         public void IncrementUpToDateFiles() => Interlocked.Increment(ref _upToDateFiles);
 
         public void Reset()

@@ -84,7 +84,7 @@ namespace qdvc.Tests.UnitTests.Commands
         [TestMethod]
         public async Task Outputs_Uptodate_ForFilesWhichAreUptodate()
         {
-            await new StatusCommand(dvcCache, null).ExecuteAsync(new[] { @"C:\work\MyRepo\Data\file_tracked_cached.txt" });
+            await new StatusCommand(dvcCache).ExecuteAsync(new[] { @"C:\work\MyRepo\Data\file_tracked_cached.txt" });
 
             Console.StdOut.Should().NotContain(@"Data\file-tracked-cached.txt");
 
@@ -94,7 +94,7 @@ namespace qdvc.Tests.UnitTests.Commands
         [TestMethod]
         public async Task Outputs_Nothing_ForUntrackedFile()
         {
-            await new StatusCommand(dvcCache, null).ExecuteAsync(new[] { @"C:\work\MyRepo\Data\untracked-file.txt" });
+            await new StatusCommand(dvcCache).ExecuteAsync(new[] { @"C:\work\MyRepo\Data\untracked-file.txt" });
 
             Console.StdOut.Should().NotContain(@"Data\untracked-file.txt");
 
@@ -104,7 +104,7 @@ namespace qdvc.Tests.UnitTests.Commands
         [TestMethod]
         public async Task Outputs_Nothing_ForFileThat_Matches_AssociatedDvcFile_AndIsCached()
         {
-            await new StatusCommand(dvcCache, null).ExecuteAsync(new[] { @"C:\work\MyRepo\Data\file_tracked_cached.txt" });
+            await new StatusCommand(dvcCache).ExecuteAsync(new[] { @"C:\work\MyRepo\Data\file_tracked_cached.txt" });
             
             Console.StdOut.Should().NotContain(@"Data\file_tracked_cached.txt");
 
@@ -114,7 +114,7 @@ namespace qdvc.Tests.UnitTests.Commands
         [TestMethod]
         public async Task Outputs_Modified_ForFileThat_DoesNotMatch_AssociatedDvcFile()
         {
-            await new StatusCommand(dvcCache, null).ExecuteAsync(new[] { @"C:\work\MyRepo\Data\file_tracked_modified.txt" });
+            await new StatusCommand(dvcCache).ExecuteAsync(new[] { @"C:\work\MyRepo\Data\file_tracked_modified.txt" });
 
             Console.StdOut.Should().Contain(@"Modified: C:\work\MyRepo\Data\file_tracked_modified.txt");
 
@@ -126,7 +126,7 @@ namespace qdvc.Tests.UnitTests.Commands
         [TestMethod]
         public async Task Outputs_NotInCache_ForTrackedFile_ThatIsNotInCache()
         {
-            await new StatusCommand(dvcCache, null).ExecuteAsync(new[] { @"C:\work\MyRepo\Data\file_tracked_not-cached.txt" });
+            await new StatusCommand(dvcCache).ExecuteAsync(new[] { @"C:\work\MyRepo\Data\file_tracked_not-cached.txt" });
 
             Console.StdOut.Should().Contain(@"Not in cache: C:\work\MyRepo\Data\file_tracked_not-cached.txt");
 
@@ -139,7 +139,7 @@ namespace qdvc.Tests.UnitTests.Commands
         public async Task Outputs_Status_OfAllFilesInTheFolder()
         {
             var files = FilesEnumerator.EnumerateFilesFromPath(@"C:\work\MyRepo\Data\");
-            await new StatusCommand(dvcCache, null).ExecuteAsync(files);
+            await new StatusCommand(dvcCache).ExecuteAsync(files);
 
             Console.StdOut.Should().Contain(@"Not in cache: C:\work\MyRepo\Data\file_tracked_not-cached.txt");
             Console.StdOut.Should().Contain(@"Modified: C:\work\MyRepo\Data\file_tracked_modified.txt");
@@ -156,7 +156,7 @@ namespace qdvc.Tests.UnitTests.Commands
         public async Task Outputs_Missing_ForMissingTrackedFile()
         {
             var files = FilesEnumerator.EnumerateFilesFromPath(@"C:\work\MyRepo\Data\");
-            await new StatusCommand(dvcCache, null).ExecuteAsync(files);
+            await new StatusCommand(dvcCache).ExecuteAsync(files);
 
             Console.StdOut.Should().Contain(@"Missing: C:\work\MyRepo\Data\file_missing_cached.txt");
         }

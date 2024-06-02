@@ -96,7 +96,7 @@ class Program
                 await new AddCommand(dvcCache).ExecuteAsync(files);
                 break;
             case "status":
-                await new StatusCommand(dvcCache, httpClient).ExecuteAsync(files);
+                await new StatusCommand(dvcCache).ExecuteAsync(files);
                 break;
             default:
                 Console.WriteLine($"Invalid command '{Args.Command}'");
