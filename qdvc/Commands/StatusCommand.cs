@@ -72,7 +72,7 @@ namespace qdvc.Commands
         private Task OutputDvcFileStatusAsync(string file)
         {
             string trackedFileName = file.Substring(0, file.Length - 4);
-            Console.StdOutWriteLine($"{trackedFileName} Missing");
+            Console.StdOutWriteLine($"Missing: {trackedFileName}");
             Statistics.IncrementMissingFiles();
             return Task.CompletedTask;
         }
@@ -83,7 +83,7 @@ namespace qdvc.Commands
 
             if (!FileSystem.File.Exists(dvcFilePath))
             {
-                //Console.StdOutWriteLine($"{file} Untracked");
+                //Console.StdOutWriteLine($"Untracked: {file}");
                 Statistics.IncrementUntrackedFiles();
                 return;
             }
@@ -93,7 +93,7 @@ namespace qdvc.Commands
 
             if (md5 != md5InDvc)
             {
-                Console.StdOutWriteLine($"{file} Modified");
+                Console.StdOutWriteLine($"Modified: {file}");
                 Statistics.IncrementModifiedFiles();
                 return;
             }
@@ -101,7 +101,7 @@ namespace qdvc.Commands
             var cacheFilePath = DvcCache?.GetCacheFilePath(md5);
             if (cacheFilePath == null || !FileSystem.File.Exists(cacheFilePath))
             {
-                Console.StdOutWriteLine($"{file} Not in cache");
+                Console.StdOutWriteLine($"Not in cache: {file}");
                 Statistics.IncrementNotInCacheFiles();
                 return;
             }

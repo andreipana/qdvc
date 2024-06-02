@@ -116,7 +116,7 @@ namespace qdvc.Tests.UnitTests.Commands
         {
             await new StatusCommand(dvcCache, null).ExecuteAsync(new[] { @"C:\work\MyRepo\Data\file_tracked_modified.txt" });
 
-            Console.StdOut.Should().Contain(@"Data\file_tracked_modified.txt Modified");
+            Console.StdOut.Should().Contain(@"Modified: C:\work\MyRepo\Data\file_tracked_modified.txt");
 
             Console.StdOut.Should().Contain(@"Total files: 1, Modified: 1");
             Console.StdOut.Should().NotContain("Untracked: ");
@@ -128,7 +128,7 @@ namespace qdvc.Tests.UnitTests.Commands
         {
             await new StatusCommand(dvcCache, null).ExecuteAsync(new[] { @"C:\work\MyRepo\Data\file_tracked_not-cached.txt" });
 
-            Console.StdOut.Should().Contain(@"Data\file_tracked_not-cached.txt Not in cache");
+            Console.StdOut.Should().Contain(@"Not in cache: C:\work\MyRepo\Data\file_tracked_not-cached.txt");
 
             Console.StdOut.Should().Contain(@"Total files: 1, Not in cache: 1");
             Console.StdOut.Should().NotContain("Untracked: ");
@@ -141,8 +141,8 @@ namespace qdvc.Tests.UnitTests.Commands
             var files = FilesEnumerator.EnumerateFilesFromPath(@"C:\work\MyRepo\Data\");
             await new StatusCommand(dvcCache, null).ExecuteAsync(files);
 
-            Console.StdOut.Should().Contain(@"Data\file_tracked_not-cached.txt Not in cache");
-            Console.StdOut.Should().Contain(@"Data\file_tracked_modified.txt Modified");
+            Console.StdOut.Should().Contain(@"Not in cache: C:\work\MyRepo\Data\file_tracked_not-cached.txt");
+            Console.StdOut.Should().Contain(@"Modified: C:\work\MyRepo\Data\file_tracked_modified.txt");
             
             Console.StdOut.Should().Contain(@"Total files: 5");
             Console.StdOut.Should().Contain(@"Up to date: 1");
@@ -158,7 +158,7 @@ namespace qdvc.Tests.UnitTests.Commands
             var files = FilesEnumerator.EnumerateFilesFromPath(@"C:\work\MyRepo\Data\");
             await new StatusCommand(dvcCache, null).ExecuteAsync(files);
 
-            Console.StdOut.Should().Contain(@"Data\file_missing_cached.txt Missing");
+            Console.StdOut.Should().Contain(@"Missing: C:\work\MyRepo\Data\file_missing_cached.txt");
         }
     }
 }
