@@ -27,7 +27,7 @@ namespace qdvc.Utilities
 
             var statusCommand = new Command("status", "Shows the status of the tracked files.");
             statusCommand.AddArgument(pathsArgument);
-            var statusRepoOptions = new Option<bool>("--repo");
+            var statusRepoOptions = new Option<bool>(["--repo", "-r"], "Shows the status of the files between cache and remote repo.");
             statusCommand.AddOption(statusRepoOptions);
             statusCommand.SetHandler((paths, username, password, repo) =>
             {
@@ -60,6 +60,16 @@ namespace qdvc.Utilities
             }, pathsArgument, usernameOption, passwordOption);
             rootCommand.AddCommand(pushCommand);
 
+            var cleanCommand = new Command("clean", "Deletes the data files that are tracked by the .dvc files.");
+            cleanCommand.AddArgument(pathsArgument);
+            var cleanForceOption = new Option<bool>(["--force", "-f"], "Force the deletion of the tracked files, including modified files.");
+            cleanCommand.AddOption(cleanForceOption);
+            cleanCommand.SetHandler((paths, username, password, force) =>
+            {
+                Args = new CommandLineArguments("clean", paths, username, password) { Force = force };
+            }, pathsArgument, usernameOption, passwordOption, cleanForceOption);
+            rootCommand.AddCommand(cleanCommand);
+
             rootCommand.Invoke(args, _Console);
 
             return Args;
@@ -68,7 +78,6 @@ namespace qdvc.Utilities
         internal class Console : System.CommandLine.IConsole
         {
             private StandardOutputStreamWriter _out = new StandardOutputStreamWriter();
-            private bool _isOutputRedirected;
             private StandardErrorStreamWriter _error = new StandardErrorStreamWriter();
 
             public IStandardStreamWriter Out => _out;

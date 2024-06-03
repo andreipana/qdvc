@@ -12,6 +12,8 @@ namespace qdvc.Utilities
 
         public string? Command { get; private set; } = null;
 
+        public bool Force { get; set; } = false;
+
         public CommandLineArguments(string? command, IEnumerable<string> paths, string? username, string? password)
         {
             Command = command;

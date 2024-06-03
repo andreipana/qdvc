@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -185,7 +184,7 @@ namespace qdvc.Commands
             }
 
             if (everythingUpToDate)
-                sb.AppendLine(", Everything is up to date");
+                sb.Append(", Everything is up to date");
 
             return sb.ToString();
         }

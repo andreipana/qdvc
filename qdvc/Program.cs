@@ -101,6 +101,9 @@ class Program
             case "status--repo":
                 await new StatusRepoCommand(dvcCache, httpClient).ExecuteAsync(files);
                 break;
+            case "clean":
+                await new CleanCommand(Args.Force).ExecuteAsync(files);
+                break;
             default:
                 Console.WriteLine($"Invalid command '{Args.Command}'");
                 break;

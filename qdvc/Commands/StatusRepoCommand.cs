@@ -20,9 +20,11 @@ namespace qdvc.Commands
 
         public async Task ExecuteAsync(IEnumerable<string> files)
         {
+            processedFiles.Clear();
+
             var options = new ParallelOptions
             {
-                MaxDegreeOfParallelism = 1
+                MaxDegreeOfParallelism = -1
             };
 
             var targetFiles = files.Select(GetTargetFile).Where(f => f != string.Empty);
@@ -162,7 +164,7 @@ namespace qdvc.Commands
             }
 
             if (everythingUpToDate)
-                sb.AppendLine(", Everything is up to date");
+                sb.Append(", Everything is up to date");
 
             return sb.ToString();
         }
