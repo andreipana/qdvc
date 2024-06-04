@@ -1,9 +1,11 @@
 ﻿using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using qdvc.Commands;
+using qdvc.Tests.TestInfrastructure;
 using RichardSzalay.MockHttp;
 using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using static qdvc.Infrastructure.IOContext;
@@ -11,9 +13,8 @@ using static qdvc.Infrastructure.IOContext;
 namespace qdvc.Tests.UnitTests.Commands
 {
     [TestClass]
-    public class PushCommandTests
+    public class PushCommandTests : CommandTests
     {
-        private readonly Credentials credentials;
         private readonly DvcCache dvcCache;
         private readonly HttpClient httpClient;
 
@@ -37,26 +38,57 @@ namespace qdvc.Tests.UnitTests.Commands
 
             dvcCache = new DvcCache(@"C:\work\MyRepo\.dvc\cache\");
 
-            credentials = new Credentials("ghst", "21232f297a57a5a743894a0e4a801fc3", "hardcoded");
+            var testRepository = new TestRepository();
 
-            var mockHttp = new MockHttpMessageHandler();
-            mockHttp.When(
-                    "https://artifactory.hexagon.com/artifactory/gsurv-generic-release-local/sprout/testdata/files/md5/85/626f0d045734ec369864a51e37393f")
-                .Respond("application/octet-stream", "“Let there be light”, and there was light.");
-
-            httpClient = new HttpClient(mockHttp);
+            httpClient = testRepository.CreateClient();
         }
 
         [TestMethod]
-        public async Task PushCommand_CheckDownloadAfter()
+        public async Task PushCommand_UploadsToRemoteRepo_TheSpecifiedFile()
         {
-            // TODO: check more error codes
+            await new PushCommand(dvcCache, httpClient).ExecuteAsync([@"C:\work\MyRepo\Data\Assets\file.txt"]);
+
+            httpClient
+                .GetStringAsync(
+                    "https://artifactory.hexagon.com/artifactory/gsurv-generic-release-local/sprout/testdata/files/md5/85/626f0d045734ec369864a51e37393f")
+                .Result.Should().Be("“Let there be light”, and there was light.");
+        }
+
+        [TestMethod]
+        public async Task PushCommand_UploadsToRemoteRepo_TheTrackedFile_WhenSpecifiedAsDvcFile()
+        {
             await new PushCommand(dvcCache, httpClient).ExecuteAsync([@"C:\work\MyRepo\Data\Assets\file.txt.dvc"]);
 
             httpClient
                 .GetStringAsync(
                     "https://artifactory.hexagon.com/artifactory/gsurv-generic-release-local/sprout/testdata/files/md5/85/626f0d045734ec369864a51e37393f")
                 .Result.Should().Be("“Let there be light”, and there was light.");
+        }
+
+        [TestMethod]
+        public async Task PushCommand_DoesntUpload_IfTheFileIsAlreadyUploaded()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            mockHttp.When(HttpMethod.Head, "*").Respond(HttpStatusCode.OK);
+            mockHttp.When(HttpMethod.Put, "*").Respond(_ => throw new System.Exception());
+            var httpClient = new HttpClient(mockHttp);
+
+            await new PushCommand(dvcCache, httpClient).ExecuteAsync([@"C:\work\MyRepo\Data\Assets\file.txt.dvc"]);
+
+            mockHttp.VerifyNoOutstandingExpectation();
+        }
+
+        [TestMethod]
+        public async Task PushCommand_OutputsErrorCode_IfPushingFailed()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            mockHttp.When(HttpMethod.Head, "*").Respond(HttpStatusCode.NotFound);
+            mockHttp.When(HttpMethod.Put, "*").Respond(HttpStatusCode.Unauthorized);
+            var httpClient = new HttpClient(mockHttp);
+
+            await new PushCommand(dvcCache, httpClient).ExecuteAsync([@"C:\work\MyRepo\Data\Assets\file.txt.dvc"]);
+
+            Console.StdOut.Should().Contain("ERROR (Unauthorized)");
         }
     }
 }
