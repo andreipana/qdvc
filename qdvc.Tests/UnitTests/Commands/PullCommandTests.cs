@@ -60,6 +60,18 @@ namespace qdvc.Tests.UnitTests.Commands
             var filePath = @"C:\work\MyRepo\Data\Assets\file.txt";
 
             await new PullCommand(dvcCache, httpClient)
+                .ExecuteAsync([$"{filePath}"]);
+
+            FileSystem.File.ReadAllText(filePath)
+                .Should().Be("Code is poetry");
+        }
+
+        [TestMethod]
+        public async Task PullCommand_Downloads_TheTrackedFile_WhenSpecifiedAsDvcFile()
+        {
+            var filePath = @"C:\work\MyRepo\Data\Assets\file.txt";
+
+            await new PullCommand(dvcCache, httpClient)
                 .ExecuteAsync([$"{filePath}.dvc"]);
 
             FileSystem.File.ReadAllText(filePath)

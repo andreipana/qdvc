@@ -23,6 +23,8 @@ namespace qdvc.Commands
 
         public async Task ExecuteAsync(IEnumerable<string> files)
         {
+            Statistics.Reset();
+
             var options = new ParallelOptions
             {
                 MaxDegreeOfParallelism = -1

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -24,12 +25,14 @@ namespace qdvc.Commands
 
         public async Task ExecuteAsync(IEnumerable<string> files)
         {
+            processedFiles.Clear();
+
             var options = new ParallelOptions
             {
                 MaxDegreeOfParallelism = -1
             };
 
-            var dvcFiles = files.Where(f => f.EndsWith(".dvc", StringComparison.OrdinalIgnoreCase));
+            var dvcFiles = files.Select(GetTargetFile).Where(f => f != string.Empty);
 
             await Parallel.ForEachAsync(dvcFiles, options, async (dvcFilePath, _) =>
             {
@@ -37,6 +40,22 @@ namespace qdvc.Commands
             });
         }
 
+        private readonly ConcurrentDictionary<string, int> processedFiles = new();
+
+        private string GetTargetFile(string file)
+        {
+            var dvcFile = file.EndsWith(".dvc", StringComparison.OrdinalIgnoreCase) ? file : file + ".dvc";
+
+            if (!processedFiles.TryAdd(dvcFile, 0))
+                return string.Empty;
+
+            if (FileSystem.File.Exists(dvcFile))
+                return dvcFile;
+
+            Console.StdErrWriteLine($"File {file} is not tracked.");
+
+            return string.Empty;
+        }
 
         async Task PullDvcFile(string dvcFilePath)
         {
@@ -91,13 +110,13 @@ namespace qdvc.Commands
                         FileSystem.FileInfo.New(targetFilePath).Attributes &= ~FileAttributes.ReadOnly;
 
                         if (isFileInCache)
-                            Console.StdOutWriteLine($"CACHE => {dvcFilePath}");
+                            Console.StdOutWriteLine($"CACHE => {targetFilePath}");
                     }
                 }
                 else
                 {
                     await DownloadFileAsync(md5, targetFilePath);
-                    Console.StdOutWriteLine($"REPO ->  {dvcFilePath}");
+                    Console.StdOutWriteLine($"REPO ->  {targetFilePath}");
                 }
             }
             catch (Exception ex)

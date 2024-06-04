@@ -19,6 +19,7 @@ namespace qdvc.Commands
 
         public async Task ExecuteAsync(IEnumerable<string> files)
         {
+            Statistics.Reset();
             processedFiles.Clear();
 
             var options = new ParallelOptions
@@ -27,8 +28,6 @@ namespace qdvc.Commands
             };
 
             var targetFiles = files.Select(GetTargetFile).Where(f => f != string.Empty);
-
-            Statistics.Reset();
 
             await Parallel.ForEachAsync(targetFiles, options, async (file, _) =>
             {
@@ -39,7 +38,6 @@ namespace qdvc.Commands
         }
 
         private readonly ConcurrentDictionary<string, int> processedFiles = new();
-
 
         private string GetTargetFile(string file)
         {
