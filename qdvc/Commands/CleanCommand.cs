@@ -23,7 +23,7 @@ namespace qdvc.Commands
 
             var options = new ParallelOptions
             {
-                MaxDegreeOfParallelism = 1
+                MaxDegreeOfParallelism = -1
             };
 
             var targetFiles = files.Select(GetTargetFile).Where(f => f != string.Empty);
