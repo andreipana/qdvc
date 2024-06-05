@@ -2,9 +2,11 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using qdvc.Commands;
 using qdvc.Tests.TestInfrastructure;
+using qdvc.Utilities;
 using RichardSzalay.MockHttp;
 using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using static qdvc.Infrastructure.IOContext;
@@ -22,6 +24,8 @@ namespace qdvc.Tests.UnitTests.Commands
         {
             Initialize(new MockFileSystem(new Dictionary<string, MockFileData>
             {
+                [@"C:\work\MyRepo\Data\untracked-file.txt"] = "The quick brown fox jumps over the lazy dog.",
+
                 [@"C:\work\MyRepo\.dvc\cache"] = new MockDirectoryData(),
                 [@"C:\work\MyRepo\Data\Assets\file.txt.dvc"] = new MockFileData(
                     """
@@ -121,7 +125,48 @@ namespace qdvc.Tests.UnitTests.Commands
                 .ExecuteAsync([$"{filePath}.dvc"]);
 
             Console.StdOut.Should().Contain("CACHE => ");
+        }
 
+        [TestMethod]
+        public async Task PullCommand_Outputs_Statistics()
+        {
+            var files = FilesEnumerator.EnumerateFilesFromPath(@"C:\work\MyRepo\Data");
+            await new PullCommand(dvcCache, httpClient)
+                .ExecuteAsync(files);
+
+            Console.StdOut.Should().Contain("Total files: 3, Pulled: 2, Untracked: 1");
+        }
+
+        [TestMethod]
+        public async Task PullCommand_Outputs_Statistics_OnFailedDownload_NotFound()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            mockHttp.When(HttpMethod.Get, "*").Respond(HttpStatusCode.NotFound);
+            var httpClient = new HttpClient(mockHttp);
+
+            var files = FilesEnumerator.EnumerateFilesFromPath(@"C:\work\MyRepo\Data");
+            await new PullCommand(dvcCache, httpClient)
+                .ExecuteAsync(files);
+
+            Console.StdOut.Should().Contain("Total files: 3, Pulled: 1, Untracked: 1, Failed: 1");
+            Console.StdErr.Should().Contain("Failed to pull");
+            Console.StdErr.Should().Contain(": NotFound");
+        }
+
+        [TestMethod]
+        public async Task PullCommand_Outputs_Statistics_OnFailedDownload_Unauthorized()
+        {
+            var mockHttp = new MockHttpMessageHandler();
+            mockHttp.When(HttpMethod.Get, "*").Respond(HttpStatusCode.Unauthorized);
+            var httpClient = new HttpClient(mockHttp);
+
+            var files = FilesEnumerator.EnumerateFilesFromPath(@"C:\work\MyRepo\Data");
+            await new PullCommand(dvcCache, httpClient)
+                .ExecuteAsync(files);
+
+            Console.StdOut.Should().Contain("Total files: 3, Pulled: 1, Untracked: 1, Failed: 1");
+            Console.StdErr.Should().Contain("Failed to pull");
+            Console.StdErr.Should().Contain(": Unauthorized");
         }
     }
 }

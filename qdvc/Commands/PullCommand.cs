@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Security;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using static qdvc.Infrastructure.IOContext;
 using Console = qdvc.Infrastructure.SystemContext.Console;
@@ -17,6 +18,8 @@ namespace qdvc.Commands
 
         public HttpClient HttpClient { get; }
 
+        private PullStatistics Statistics { get; } = new();
+
         public PullCommand(DvcCache? dvcCache, HttpClient httpClient)
         {
             DvcCache = dvcCache;
@@ -25,6 +28,7 @@ namespace qdvc.Commands
 
         public async Task ExecuteAsync(IEnumerable<string> files)
         {
+            Statistics.Reset();
             processedFiles.Clear();
 
             var options = new ParallelOptions
@@ -38,6 +42,8 @@ namespace qdvc.Commands
             {
                 await PullDvcFile(dvcFilePath);
             });
+
+            Console.StdOutWriteLine(Statistics.ToString());
         }
 
         private readonly ConcurrentDictionary<string, int> processedFiles = new();
@@ -53,12 +59,16 @@ namespace qdvc.Commands
                 return dvcFile;
 
             Console.StdErrWriteLine($"File {file} is not tracked.");
+            Statistics.IncrementUntrackedFiles();
+            Statistics.IncrementTotalFiles();
 
             return string.Empty;
         }
 
         async Task PullDvcFile(string dvcFilePath)
         {
+            Statistics.IncrementTotalFiles();
+
             try
             {
                 Console.StdOutWriteLine($"Pull     {dvcFilePath}");
@@ -66,6 +76,7 @@ namespace qdvc.Commands
                 if (md5 == null)
                 {
                     Console.StdErrWriteLine($"Failed to read hash from {dvcFilePath}");
+                    Statistics.IncrementFailedFiles();
                     return;
                 }
 
@@ -81,6 +92,9 @@ namespace qdvc.Commands
                     {
                         isFileInCache = false;
                         await DownloadFileAsync(md5, cacheFilePathTemp);
+
+                        if (!FileSystem.File.Exists(cacheFilePathTemp))
+                            return;
 
                         Console.StdOutWriteLine($"REPO  => {dvcFilePath}");
 
@@ -116,12 +130,18 @@ namespace qdvc.Commands
                 else
                 {
                     await DownloadFileAsync(md5, targetFilePath);
+                    if (!FileSystem.File.Exists(targetFilePath))
+                        return;
+
                     Console.StdOutWriteLine($"REPO ->  {targetFilePath}");
                 }
+
+                Statistics.IncrementPulledFiles();
             }
             catch (Exception ex)
             {
                 Console.StdErrWriteLine($"Failed to pull {dvcFilePath}: {ex.Message}");
+                Statistics.IncrementFailedFiles();
             }
         }
 
@@ -131,18 +151,53 @@ namespace qdvc.Commands
             var response = await HttpClient.GetAsync(url);
 
             if (!response.IsSuccessStatusCode)
-            {
-                if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-                {
-                    throw new SecurityException("Unauthorized");
-                }
-
-                Console.StdErrWriteLine($"Failed to download {url}: {response.StatusCode}");
-                return;
-            }
+                throw new Exception(response.StatusCode.ToString());
 
             using var fs = FileSystem.FileStream.New(filePath, FileMode.Create, FileAccess.Write);
             await response.Content.CopyToAsync(fs);
+        }
+
+        private class PullStatistics
+        {
+            private volatile int _totalFiles;
+            private volatile int _pulledFiles;
+            private volatile int _untrackedFiles;
+            private volatile int _failedFiles;
+
+            public int TotalFiles => _totalFiles;
+            public int PulledFiles => _pulledFiles;
+            public int UntrackedFiles => _untrackedFiles;
+            public int FailedFiles => _failedFiles;
+
+            internal void IncrementTotalFiles() => Interlocked.Increment(ref _totalFiles);
+            internal void IncrementPulledFiles() => Interlocked.Increment(ref _pulledFiles);
+            internal void IncrementUntrackedFiles() => Interlocked.Increment(ref _untrackedFiles);
+            internal void IncrementFailedFiles() => Interlocked.Increment(ref _failedFiles);
+
+            internal void Reset()
+            {
+                Interlocked.Exchange(ref _totalFiles, 0);
+                Interlocked.Exchange(ref _pulledFiles, 0);
+                Interlocked.Exchange(ref _untrackedFiles, 0);
+                Interlocked.Exchange(ref _failedFiles, 0);
+            }
+
+            public override string ToString()
+            {
+                var sb = new StringBuilder();
+                sb.Append($"Total files: {TotalFiles}");
+
+                if (PulledFiles > 0)
+                    sb.Append($", Pulled: {PulledFiles}");
+
+                if (UntrackedFiles > 0)
+                    sb.Append($", Untracked: {UntrackedFiles}");
+
+                if (FailedFiles > 0)
+                    sb.Append($", Failed: {FailedFiles}");
+
+                return sb.ToString();
+            }
         }
     }
 }
