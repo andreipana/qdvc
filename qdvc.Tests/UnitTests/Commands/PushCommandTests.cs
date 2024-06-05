@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using qdvc.Commands;
 using qdvc.Tests.TestInfrastructure;
+using qdvc.Utilities;
 using RichardSzalay.MockHttp;
 using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;
@@ -88,7 +89,18 @@ namespace qdvc.Tests.UnitTests.Commands
 
             await new PushCommand(dvcCache, httpClient).ExecuteAsync([@"C:\work\MyRepo\Data\Assets\file.txt.dvc"]);
 
-            Console.StdOut.Should().Contain("ERROR (Unauthorized)");
+            Console.StdErr.Should().Contain(@"Failed to push C:\work\MyRepo\Data\Assets\file.txt: Unauthorized");
+        }
+
+        [TestMethod]
+        public async Task PushCommand_Outputs_Statistics()
+        {
+            var files = FilesEnumerator.EnumerateFilesFromPath(@"C:\work\MyRepo\Data");
+            await new PushCommand(dvcCache, httpClient)
+                .ExecuteAsync(files);
+
+            Console.StdOut.Should().Contain(@"Pushed C:\work\MyRepo\Data\Assets\file.txt");
+            Console.StdOut.Should().Contain("Total files: 1, Pulled: 1");
         }
     }
 }
